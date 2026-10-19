@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0F1426">
+<meta name="theme-color" content="#F4F4F2">
 <script>window.MACAQUES_PWA = true;</script>
 <meta name="description" content="Macaquês: idiomas, matemática para o Enem, programação, dados, IA e xadrez, com o Volipe.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -27,9 +27,9 @@ img{max-width:100%}
 <style>
 /* Layout: one narrow column like a pocket notebook; home = course chips + path of units, lesson = full-height card with a sticky check bar */
 :root{
-  --bg:#EEF1F7; --surface:#FFFFFF; --sunk:#E2E7F1; --line:#CDD5E4;
-  --fg:#18203A; --muted:#5B6683;
-  --primary:#2546C9; --primary-ink:#FFFFFF; --primary-deep:#1A3399;
+  --bg:#F4F4F2; --surface:#FFFFFF; --sunk:#E8E8E5; --line:#D5D5D1;
+  --fg:#1E1E1C; --muted:#66665F;
+  --primary:#2F2F2D; --primary-ink:#FFFFFF; --primary-deep:#171716;
   --gold:#E9A400; --gold-soft:#FFF2CC;
   --ok:#1E8A5A; --ok-soft:#DDF3E8; --bad:#C63B32; --bad-soft:#FBE3E1;
   --sq-light:#EBD9B4; --sq-dark:#B38A5E; --sq-sel:#F3CF4A; --sq-move:#E6C25A;
@@ -41,17 +41,17 @@ img{max-width:100%}
   --m-ink:#121212; --m-face:#FFFFFF; --m-outline:#FFFFFF; --m-tongue:#E8626A;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0F1426; --surface:#182039; --sunk:#111830; --line:#2B3657;
-  --fg:#E8ECF8; --muted:#9AA5C4;
-  --primary:#7894FF; --primary-ink:#0D1430; --primary-deep:#5470E0;
+  --bg:#141413; --surface:#1F1F1D; --sunk:#181817; --line:#33332F;
+  --fg:#EDEDEA; --muted:#A5A5A0;
+  --primary:#E6E6E2; --primary-ink:#161615; --primary-deep:#BDBDB8;
   --gold:#FFC53D; --gold-soft:#3A3014;
   --ok:#4CC58D; --ok-soft:#163A2B; --bad:#FF7A70; --bad-soft:#41201F;
   --sq-light:#C9B48C; --sq-dark:#8A6640; --sq-sel:#D9B53A; --sq-move:#C9A645;
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0F1426; --surface:#182039; --sunk:#111830; --line:#2B3657;
-  --fg:#E8ECF8; --muted:#9AA5C4;
-  --primary:#7894FF; --primary-ink:#0D1430; --primary-deep:#5470E0;
+  --bg:#141413; --surface:#1F1F1D; --sunk:#181817; --line:#33332F;
+  --fg:#EDEDEA; --muted:#A5A5A0;
+  --primary:#E6E6E2; --primary-ink:#161615; --primary-deep:#BDBDB8;
   --gold:#FFC53D; --gold-soft:#3A3014;
   --ok:#4CC58D; --ok-soft:#163A2B; --bad:#FF7A70; --bad-soft:#41201F;
   --sq-light:#C9B48C; --sq-dark:#8A6640; --sq-sel:#D9B53A; --sq-move:#C9A645;
@@ -219,7 +219,7 @@ select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--lin
 .ai{background:var(--surface);border:2px solid var(--primary);border-radius:var(--r);padding:14px 16px;display:grid;gap:8px}
 .ai-h{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:17px}
 .ai-t{white-space:pre-line;line-height:1.55;max-width:65ch}
-.code{margin:0;background:#141821;color:#E6EAF2;border-radius:var(--r);padding:14px 16px;font:15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre}
+.code{margin:0;background:#1B1B1A;color:#ECECE8;border-radius:var(--r);padding:14px 16px;font:15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre}
 .col{flex-direction:column;flex-wrap:nowrap;align-items:stretch}
 .col .tile{text-align:left;font-size:16px}
 .mono .tile{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre;font-size:15px}
@@ -238,8 +238,8 @@ select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--lin
 .sq.d{background:var(--sq-dark)}
 .sq.sel{background:var(--sq-sel)}
 .sq.last{background:var(--sq-move)}
-.sq.tgt::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(20,30,60,.35)}
-.sq.tgt.cap::after{width:86%;height:86%;background:none;border:4px solid rgba(20,30,60,.35);box-sizing:border-box}
+.sq.tgt::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(30,30,28,.35)}
+.sq.tgt.cap::after{width:86%;height:86%;background:none;border:4px solid rgba(30,30,28,.35);box-sizing:border-box}
 .sq .pc{position:relative;z-index:1;display:block;height:1em;line-height:1;font-family:"Segoe UI Symbol","DejaVu Sans","Noto Sans Symbols 2",serif}
 .pc.w{color:#FBFAF5;-webkit-text-stroke:1.4px #23211E;text-shadow:0 2px 0 rgba(0,0,0,.25)}
 .pc.b{color:#211F1C;-webkit-text-stroke:.6px #000}

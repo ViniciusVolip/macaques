@@ -1,5 +1,5 @@
-// Macaquês — funciona offline. Versão 2026-10-19-4
-const CACHE = 'macaques-2026-10-19-4';
+// Macaquês — funciona offline. Versão 2026-10-19-5
+const CACHE = 'macaques-2026-10-19-5';
 const CORE = ['./', 'index.html', 'chess.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
