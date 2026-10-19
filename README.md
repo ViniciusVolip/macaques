@@ -11,7 +11,6 @@ No Chrome do Android, toque em ⋮ e depois em **Instalar app**.
 - **Matemática para o Enem**, **Programação (Python)**, **Dados** e **IA e prompts**.
 - **Xadrez:** exercícios e partidas contra o Volipe em três níveis.
 - **Flashcards** com repetição espaçada.
-- **Bananeira do foco:** Pomodoro de 25 minutos de foco e 5 de pausa. A bananeira cresce enquanto você estuda e murcha se você sair do app por mais do que a tolerância (15 segundos, ajustável em Ajustes). Cada cacho colhido dá 10 XP.
 - XP, sequência de dias, vidas e revisão de erros.
 - Funciona offline depois de aberto uma vez.
 

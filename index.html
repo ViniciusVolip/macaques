@@ -111,23 +111,16 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .wkd.t i{background:var(--ac)}
 .wkd span{font-size:11px;font-weight:700;color:var(--muted)}
 .wkd.t span{color:var(--fg)}
-/* cartão da bananeira em destaque */
-.play.bcard{background:#24524F;border:0;color:#fff;box-shadow:var(--shadow)}
-.play.bcard h3{color:#fff}.play.bcard p,.play.bcard .bnote{color:rgba(255,255,255,.8)}
-.bcard .btn{background:#F28C4B;color:#25241F;box-shadow:0 4px 0 #B9622B}
 /* barra inferior */
 .wrap{padding-bottom:120px}
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:0 max(12px,env(safe-area-inset-left,0px)) env(safe-area-inset-bottom,0px) max(12px,env(safe-area-inset-right,0px));pointer-events:none}
-.nav-in{pointer-events:auto;max-width:560px;margin:0 auto 10px;display:grid;grid-template-columns:1fr 76px 1fr;align-items:center;background:var(--surface);border-radius:28px;box-shadow:0 8px 28px rgba(70,55,30,.16);padding:8px 10px;border:1px solid var(--line)}
+.nav-in{pointer-events:auto;max-width:560px;margin:0 auto 10px;display:grid;grid-template-columns:1fr 1fr;align-items:center;background:var(--surface);border-radius:28px;box-shadow:0 8px 28px rgba(70,55,30,.16);padding:8px 10px;border:1px solid var(--line)}
 .nav-side{display:flex;justify-content:space-around;align-items:center;gap:4px}
 .navb{border:0;background:none;display:grid;justify-items:center;gap:2px;padding:2px 6px;font-size:12px;font-weight:700;color:var(--muted);border-radius:16px}
 .navb .ni{display:grid;place-items:center;width:46px;height:28px;border-radius:999px}
 .navb .ni svg{width:20px;height:20px}
 .navb[aria-selected="true"]{color:var(--fg)}
 .navb[aria-selected="true"] .ni{background:var(--ac-soft)}
-.navfocus{justify-self:center;width:60px;height:60px;margin-top:-30px;border-radius:50%;border:4px solid var(--surface);background:var(--ac);color:var(--ac-ink);display:grid;place-items:center;box-shadow:0 6px 14px rgba(70,55,30,.22)}
-.navfocus svg{width:28px;height:28px}
-.navfocus:active{transform:translateY(2px)}
 
 /* path */
 .path{margin-top:22px;display:grid;gap:14px}
@@ -357,17 +350,6 @@ select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--lin
   @keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 }
 
-/* bananeira do foco */
-.focus .stage{align-items:center;text-align:center}
-.focus .hello{width:100%;text-align:left;margin-top:4px}
-.bscene{width:min(100%,300px,40vh);margin:0 auto}
-.bscene svg{display:block;width:100%;height:auto}
-.btime{font:800 56px/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.focus .stat svg{width:20px;height:20px}
-.focus .check .row{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}
-.focus .check .btn{padding-inline:8px;line-height:1.25}
-.btn.ghost.armed{border-color:var(--bad);color:var(--bad)}
-.bnote{font-size:13px;color:var(--muted)}
 </style>
 
 </head>
@@ -1246,7 +1228,6 @@ function home(){
   const strip = app.querySelector('.courses'), cur = strip.querySelector('[aria-pressed="true"]');
   if (cur) strip.scrollLeft = cur.offsetLeft - strip.offsetLeft - (strip.clientWidth - cur.offsetWidth) / 2;
   app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; try{localStorage.setItem(KEY+'-tab',tab)}catch(e){} home(); window.scrollTo(0,0); });
-  const nf = app.querySelector('#navfocus'); if (nf) nf.onclick = bOpen;
   const body = app.querySelector('#tabbody');
   if (tab === 'path'){
     const noChess = c.chess && typeof Chess === 'undefined';
@@ -1258,7 +1239,6 @@ function home(){
       ${goalCard(g)}
       ${noChess ? '<p class="note" style="margin-top:12px">As regras do xadrez não carregaram. Verifique a conexão e abra a página de novo.</p>' : ''}
       ${nMist && !noChess ? `<button class="review" id="rev">Revisar erros (${nMist} ${nMist>1?'itens':'item'})</button>` : ''}
-      ${focusCard()}
       ${c.chess && !noChess ? playCard() : ''}${!c.chess ? fcCard(c) : ''}${c.tts && !c.items ? talkCard(c) : ''}
       <div class="path">${unitsOf(c).map((u,ix) => {
         const done = (cs.units[u.id]||0), full = done >= LESSONS_PER_UNIT;
@@ -1276,7 +1256,6 @@ function home(){
       start(u, buildLesson(c, u));
     });
     const r = body.querySelector('#rev'); if (r) r.onclick = () => start({id:'review', title:'Revisão'}, buildReview(c));
-    bindFocusCard(body);
     if (c.chess && !noChess) bindPlayCard(body);
     if (c.tts && !c.items) bindTalkCard(body, c);
     if (!c.chess) bindFcCard(body, c);
@@ -1313,7 +1292,6 @@ function home(){
       <label for="goal">Meta diária <select id="goal">${[10,20,30,50,80].map(v=>`<option value="${v}" ${S.goal==v?'selected':''}>${v} XP</option>`).join('')}</select></label>
       <label for="rate">Velocidade da voz <select id="rate"><option value="normal" ${S.rate==='normal'?'selected':''}>Normal</option><option value="slow" ${S.rate==='slow'?'selected':''}>Mais devagar</option></select></label>
       <label for="snd">Efeitos sonoros <input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
-      <label for="grace">Bananeira: tolerância ao sair do app <select id="grace">${[10,15,30,60].map(v=>`<option value="${v}" ${graceMs()/1000==v?'selected':''}>${v} segundos</option>`).join('')}</select></label>
       ${!hasTTS ? '<p class="note">Este navegador não tem leitura em voz alta, então os exercícios de ouvir ficam de fora.</p>'
         : missing.length ? `<p class="note">Este aparelho não tem voz instalada para ${missing.join(', ')}. Nesses cursos os exercícios de ouvir ficam de fora.</p>` : ''}
       <p class="note">O progresso fica salvo neste navegador.</p>
@@ -1329,7 +1307,6 @@ function home(){
     body.querySelector('#goal').onchange = e => { S.goal = +e.target.value; save(); };
     body.querySelector('#rate').onchange = e => { S.rate = e.target.value; save(); };
     body.querySelector('#snd').onchange = e => { S.sound = e.target.checked; save(); };
-    body.querySelector('#grace').onchange = e => { S.focusGrace = +e.target.value; save(); };
     const xfer = body.querySelector('#xfer'), xt = body.querySelector('#xt'), improw = body.querySelector('#improw');
     body.querySelector('#exp').onclick = () => {
       const code = 'MACAQUES1:' + btoa(unescape(encodeURIComponent(JSON.stringify(S))));
@@ -2309,79 +2286,6 @@ function finish(won){
   const b = app.querySelector('#back'); if (b) b.onclick = home;
 }
 
-// ---------- Bananeira do foco ----------
-// Pomodoro de 25 min de foco e 5 de pausa. A bananeira cresce com o tempo de foco e murcha se o app ficar
-// fora da tela por mais do que a tolerância (Ajustes). O relógio usa a hora real, então segue certo mesmo
-// com a tela apagada. Tudo funciona offline, sem rede e sem custo.
-const FOCUS_MS = 25*60000, BREAK_MS = 5*60000, FOCUS_XP = 10, RUN_TTL = 2*3600000;
-let B = null, btick = null, bwake = null, bwaking = false, bfall = null;
-const graceMs = () => (S.focusGrace || 15) * 1000;
-const bn = () => { const b = S.banana || (S.banana = {total:0, date:null, today:0}); if (b.date !== today()){ b.date = today(); b.today = 0; } return b; };
-const mmss = ms => { const s = Math.max(0, Math.ceil(ms/1000)); return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); };
-const clamp01 = t => Math.max(0, Math.min(1, t));
-const lerp = (a, b, t) => a + (b-a)*t;
-const ease = t => 1 - (1 - clamp01(t)) ** 2;
-const mixHex = (a, b, t) => { const p = h => [1,3,5].map(i => parseInt(h.slice(i,i+2), 16)), x = p(a), y = p(b); return '#' + x.map((v,i) => Math.round(lerp(v, y[i], t)).toString(16).padStart(2,'0')).join(''); };
-const bez = (p0, p1, p2, p3, t) => { const u = 1-t; return [0,1].map(k => u*u*u*p0[k] + 3*u*u*t*p1[k] + 3*u*t*t*p2[k] + t*t*t*p3[k]); };
-I.banana = '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M6 7c0 7 5 12 13 12" stroke="#B88A0B" stroke-width="7"/><path d="M6 7c0 7 5 12 13 12" stroke="#F4C430" stroke-width="4.6"/><path d="M5.6 4.2 6 6.6" stroke="#6B5A1E" stroke-width="2.6"/></svg>';
-
-// Folha apontando para a direita; "d" faz a ponta cair quando a planta murcha. L = comprimento.
-function leaf(L, d, fill, vein){
-  const T = L*.46, f = n => n.toFixed(1), pt = q => f(q[0]) + ' ' + f(q[1]);
-  const m1 = [L*.25, -L*.40], m2 = [L*.70, -L*.36 + d*.4], tip = [L, L*.04 + d];
-  const veins = [.22, .4, .58, .76].map(t => {
-    const m = bez([0,0], m1, m2, tip, t), h = T*.36*(1 - t*.55);
-    return `M${pt(m)}l${f(L*.08)} ${f(-h)}M${pt(m)}l${f(L*.08)} ${f(h)}`;
-  }).join('');
-  return `<path d="M0 0C${pt([m1[0], m1[1]-T/2])} ${pt([m2[0], m2[1]-T/2])} ${pt(tip)}C${pt([m2[0]+L*.01, m2[1]+T/2])} ${pt([m1[0]+L*.02, m1[1]+T/2])} 0 0Z" fill="${fill}" stroke="${vein}" stroke-width="1.2" stroke-linejoin="round"/>`
-    + `<path d="M0 0C${pt(m1)} ${pt(m2)} ${pt(tip)}${veins}" fill="none" stroke="${vein}" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>`;
-}
-// p = quanto cresceu (0 a 1), w = quanto murchou (0 a 1)
-function bananeira(p, w){
-  w = w || 0;
-  const sp = ease(p), gx = 120, gy = 222, H = lerp(22, 104, sp), lean = w*16, cx = gx + lean, cy = gy - H + w*10;
-  const green = mixHex('#43A55A', '#A08F3C', w), vein = mixHex('#1F6B35', '#6B5A22', w), trunk = mixHex('#8DB653', '#8C7B55', w), ring = mixHex('#6E9A3A', '#6F6244', w);
-  const wb = lerp(9, 19, sp), wt = lerp(6, 11, sp), f1 = n => n.toFixed(1);
-  const trunkPath = `M${f1(gx-wb)} ${gy}Q${f1(gx-wb*.75+lean*.25)} ${f1(gy-H*.55)} ${f1(cx-wt)} ${f1(cy)}L${f1(cx+wt)} ${f1(cy)}Q${f1(gx+wb*.75+lean*.25)} ${f1(gy-H*.55)} ${f1(gx+wb)} ${gy}Z`;
-  let rings = '';
-  [.28, .52, .74].forEach(t => {
-    const xc = lerp(gx, cx, t*t), y = lerp(gy, cy, t), hw = lerp(wb, wt, t)*.92;
-    rings += `M${f1(xc-hw)} ${f1(y)}q${f1(hw)} ${f1(hw*.4)} ${f1(hw*2)} 0`;
-  });
-  // [ângulo, quando aparece, lado]: as folhas vão surgindo conforme ela cresce
-  const LEAVES = [[-80,.45,1],[-62,0,1],[-62,0,-1],[-36,.14,1],[-36,.14,-1],[-8,.36,1],[-8,.36,-1],[24,.58,1],[24,.58,-1]];
-  let leaves = '';
-  LEAVES.forEach(([a, t0, side], i) => {
-    const grow = t0 === 0 ? clamp01(p/.2 + .45) : clamp01((p - t0)/.22);
-    const L = lerp(.38, 1, sp) * 84 * ease(grow) * (1 - .12*w);
-    if (L < 4) return;
-    const ang = lerp(a, a*.2 + 46, w), d = lerp(0, L*.5, w);
-    leaves += `<g transform="translate(${f1(cx)} ${f1(cy)}) scale(${side} 1) rotate(${f1(ang)})">${leaf(L, d, green, vein)}</g>`;
-  });
-  // cacho de bananas: aparece perto do fim e amadurece; some se ela murchar
-  const bs = clamp01((p - .84)/.14) * (1 - w);
-  let bunch = '';
-  if (bs > .02){
-    const ripe = clamp01((p - .9)/.1), skin = mixHex('#8DC63F', '#F4C430', ripe), edge = mixHex('#4F8A2A', '#B88A0B', ripe);
-    const x0 = cx + 14, y0 = cy + 6;
-    let hands = '';
-    for (let k = 0; k < 3; k++) for (let j = 0; j < 4; j++){
-      hands += `<path transform="translate(${f1(x0 + 4 + (j-1.5)*6.4 + k*.8)} ${f1(y0 + 16 + k*14)}) rotate(${f1((j-1.5)*13)}) scale(1.05)" d="M0 0C-4 10 0 22 11 27L13 24C6 18 5 8 5 0Z" fill="${skin}" stroke="${edge}" stroke-width="1.1" stroke-linejoin="round"/>`;
-    }
-    bunch = `<g transform="translate(${f1(x0)} ${f1(y0)}) scale(${bs.toFixed(2)}) translate(${f1(-x0)} ${f1(-y0)})">`
-      + `<path d="M${f1(cx)} ${f1(cy+2)}Q${f1(cx+16)} ${f1(cy+6)} ${f1(x0+4)} ${f1(y0+14)}" fill="none" stroke="#6E8F3A" stroke-width="4" stroke-linecap="round"/>`
-      + hands + `<path transform="translate(${f1(x0+6)} ${f1(y0+74)})" d="M0 0C10 5 13 18 1 32C-9 18 -10 5 0 0Z" fill="#7A2B6B" stroke="#4E1A45" stroke-width="1"/></g>`;
-  }
-  const label = w > .5 ? 'Bananeira murcha' : `Bananeira ${Math.round(p*100)}% crescida`;
-  return `<svg viewBox="0 0 240 250" role="img" aria-label="${label}">`
-    + `<circle cx="206" cy="42" r="15" fill="var(--gold)" opacity="${(1 - .6*w).toFixed(2)}"/>`
-    + `<ellipse cx="120" cy="${gy+6}" rx="88" ry="13" fill="#8A6A47"/><ellipse cx="120" cy="${gy+3}" rx="72" ry="9" fill="#A48058"/>`
-    + `<path d="M52 225q2-10 5-14M56 225q4-8 9-10M178 225q-2-10-5-14M184 225q-4-8-9-10" fill="none" stroke="${green}" stroke-width="2.4" stroke-linecap="round"/>`
-    + `<path d="${trunkPath}" fill="${trunk}" stroke="${ring}" stroke-width="1.5" stroke-linejoin="round"/><path d="${rings}" fill="none" stroke="${ring}" stroke-width="1.4" stroke-linecap="round"/>`
-    + leaves + bunch + `</svg>`;
-}
-
-
 const NAVI = {
   path:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 18h6.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H16"/></svg>',
   custom:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -2392,7 +2296,6 @@ function navBar(c){
   return `<nav class="nav" role="tablist" aria-label="Seções">
     <div class="nav-in">
       <div class="nav-side">${t('path','Trilha')}${c.items ? '' : t('custom','Minhas aulas')}</div>
-      <button class="navfocus" id="navfocus" aria-label="Bananeira do foco: começar"><span>${I.banana}</span></button>
       <div class="nav-side">${t('settings','Ajustes')}</div>
     </div></nav>`;
 }
@@ -2408,187 +2311,12 @@ function goalCard(g){
       <div class="wk" aria-label="XP dos últimos 7 dias">${days.map(d => `<div class="wkd${d.k===today()?' t':''}" title="${d.xp} XP"><i style="height:${Math.max(8, Math.round(d.xp/mx*100))}%"></i><span>${d.l}</span></div>`).join('')}</div>
     </div></div>`;
 }
-function focusCard(){
-  const b = bn();
-  return `<div class="play bcard">
-    <div class="play-head">${mascot('think', 56, true)}<div><h3>Bananeira do foco</h3>
-      <p>25 minutos de foco e 5 de pausa. A bananeira cresce enquanto você estuda e murcha se você sair do app.</p></div></div>
-    <div class="row"><button class="btn" id="bnngo">Plantar uma bananeira</button>
-      <span class="bnote">${b.today} ${b.today === 1 ? 'cacho colhido' : 'cachos colhidos'} hoje · ${b.total} no total</span></div>
-  </div>`;
-}
-function bindFocusCard(body){ const g = body.querySelector('#bnngo'); if (g) g.onclick = bOpen; }
-
-const bGrowth = () => !B ? 0 : B.phase === 'focus' ? clamp01(1 - bLeft() / FOCUS_MS) : B.phase === 'break' ? 1 : B.phase === 'wilted' ? B.pW : 0;
-const bLeft = () => !B ? 0 : B.phase === 'ready' ? FOCUS_MS : B.running ? Math.max(0, B.endsAt - Date.now()) : (B.left || 0);
-function bSave(){
-  if (!B || B.phase === 'ready' || B.phase === 'wilted') delete S.focusRun;
-  else S.focusRun = {phase:B.phase, running:B.running, endsAt:B.endsAt, left:B.left, hiddenAt:B.hiddenAt || null, at:Date.now()};
-  save();
-}
-// Mantém a tela acesa durante o foco, para o celular não apagar sozinho e contar como saída do app
-function bWake(){
-  try {
-    if (bwake || bwaking || !navigator.wakeLock || !B || B.phase !== 'focus' || !B.running || document.hidden) return;
-    bwaking = true;
-    navigator.wakeLock.request('screen').then(l => {
-      bwaking = false;
-      if (!B || B.phase !== 'focus' || !B.running){ try { l.release(); } catch(e) {} return; }
-      bwake = l; l.addEventListener('release', () => { if (bwake === l) bwake = null; });
-    }).catch(() => { bwaking = false; });
-  } catch(e) { bwaking = false; }
-}
-function bUnwake(){ const l = bwake; bwake = null; try { if (l) l.release(); } catch(e) {} }
-
-function bOpen(){
-  L = null; G = null; T = null; F = null;
-  B = {phase:'ready', running:false, endsAt:0, left:FOCUS_MS, hiddenAt:null, w:0, pW:0, msg:null, armed:null, armTimer:null, harvested:false, afterBreak:false, view:{}};
-  bDraw();
-}
-function bDraw(){
-  const b = bn();
-  app.innerHTML = `<div class="lesson focus">
-    <div class="lhead"><button class="x" id="bquit" aria-label="Sair da bananeira">${I.x}</button>
-      <div class="gtitle">Bananeira do foco</div>
-      <div class="stat" title="Cachos colhidos hoje" aria-label="Cachos colhidos hoje">${I.banana}<span id="bcount">${b.today}</span></div></div>
-    <div class="stage">
-      <div class="eyebrow" id="bphase"></div>
-      <div class="bscene" id="bscene"></div>
-      <div class="btime" id="btime" role="timer" aria-label="Tempo restante"></div>
-      <div class="hello"><span id="bmascot"></span><div class="say" id="bsay" aria-live="polite"></div></div>
-    </div>
-    <div class="check" id="bbar"></div></div>`;
-  app.querySelector('#bquit').onclick = bQuit;
-  B.view = {};
-  clearInterval(btick); btick = setInterval(bTick, 500);
-  bPaint();
-}
-function bLines(){
-  if (B.msg && B.msg.until > Date.now()) return B.msg.lines;
-  const g = graceMs()/1000, p = bGrowth();
-  if (B.phase === 'ready') return B.afterBreak ? ['A pausa acabou.', 'Quer plantar outra bananeira?']
-    : ['Vamos plantar?', `Em 25 minutos de foco ela dá um cacho de bananas. Se você sair do app por mais de ${g} segundos, ela murcha.`];
-  if (B.phase === 'focus'){
-    if (!B.running) return ['Pausado.', 'A bananeira só cresce enquanto você está focado.'];
-    return [p < .25 ? 'Plantada! Agora é só focar.' : p < .6 ? 'Ela já está crescendo. Segue firme!' : p < .85 ? 'Já passou da metade!' : 'Quase lá! O cacho já está aparecendo.',
-      `Se sair do app por mais de ${g} segundos, ela murcha.`];
-  }
-  if (B.phase === 'break') return B.harvested ? [`Cacho colhido! +${FOCUS_XP} XP.`, 'Pausa de 5 minutos: levante, estique as costas e beba água. Pode sair do app à vontade.'] : ['Pausa de 5 minutos.', 'Descanse. Pode sair do app à vontade.'];
-  return ['A bananeira murchou.', `Você saiu do app por mais de ${g} segundos. Sem problema, plante outra quando quiser.`];
-}
-function bSay(hi, sub, ms){ B.msg = {lines:[hi, sub], until:Date.now() + (ms || 4000)}; bPaint(); }
-function bPaint(){
-  if (!B || !app.querySelector('#bscene')) return;
-  const v = B.view || (B.view = {}), diff = (k, val, fn) => { if (v[k] !== val){ v[k] = val; fn(val); } };
-  const p = bGrowth(), t = B.phase === 'wilted' ? '' : mmss(bLeft());
-  const label = {ready:'Pronto para plantar', focus:B.running ? 'Foco' : 'Pausado', break:'Pausa', wilted:'Murchou'}[B.phase];
-  const mood = B.phase === 'focus' && B.running ? 'think' : B.phase === 'break' ? 'happy' : B.phase === 'wilted' ? 'sad' : 'idle';
-  const [hi, sub] = bLines();
-  diff('phase', label, s => { app.querySelector('#bphase').textContent = s; });
-  diff('time', t, s => { const el = app.querySelector('#btime'); el.textContent = s; el.hidden = !s; });
-  diff('tree', Math.round(p*1000) + ':' + Math.round(B.w*100), () => { app.querySelector('#bscene').innerHTML = bananeira(p, B.w); });
-  diff('mood', mood, s => { app.querySelector('#bmascot').innerHTML = mascot(s, 84); });
-  diff('say', hi + '|' + sub, () => { app.querySelector('#bsay').innerHTML = `${esc(hi)}<small>${esc(sub)}</small>`; });
-  diff('bar', B.phase + '|' + B.running + '|' + B.armed, bBar);
-}
-function bBar(){
-  const bar = app.querySelector('#bbar'); if (!bar) return;
-  const btn = (id, cls, txt) => `<button class="btn ${cls}" id="${id}">${txt}</button>`;
-  let html;
-  if (B.phase === 'focus') html = (B.running ? btn('bpause', '', 'Pausar') : btn('bresume', '', 'Continuar'))
-    + btn('brestart', 'ghost' + (B.armed === 'restart' ? ' armed' : ''), B.armed === 'restart' ? 'Toque de novo para recomeçar' : 'Recomeçar');
-  else if (B.phase === 'break') html = btn('bskip', 'ghost', 'Pular pausa');
-  else html = btn('bgo', '', B.phase === 'wilted' ? 'Plantar de novo' : 'Plantar e começar');
-  bar.innerHTML = `<div class="row">${html}</div>`;
-  const on = (id, fn) => { const e = bar.querySelector('#' + id); if (e) e.onclick = fn; };
-  on('bgo', bStart); on('bpause', bPause); on('bresume', bResume); on('brestart', bRestart); on('bskip', bSkip);
-}
-function bArm(what, ms){
-  B.armed = what; clearTimeout(B.armTimer);
-  B.armTimer = setTimeout(() => { if (B && B.armed === what){ B.armed = null; B.msg = null; bPaint(); } }, ms || 4000);
-}
-
-function bStart(){
-  clearTimeout(B.armTimer); cancelAnimationFrame(bfall);
-  Object.assign(B, {phase:'focus', running:true, endsAt:Date.now() + FOCUS_MS, left:FOCUS_MS, hiddenAt:null, w:0, pW:0, msg:null, armed:null, harvested:false, afterBreak:false});
-  bSave(); bWake(); bPaint();
-}
-function bPause(){ B.left = Math.max(0, B.endsAt - Date.now()); B.running = false; B.hiddenAt = null; bUnwake(); bSave(); bPaint(); }
-function bResume(){ B.endsAt = Date.now() + B.left; B.running = true; bSave(); bWake(); bPaint(); }
-function bRestart(){ if (B.armed !== 'restart'){ bArm('restart'); bPaint(); return; } bStart(); }
-function bSkip(){ B.phase = 'ready'; B.running = false; B.left = FOCUS_MS; B.afterBreak = true; B.harvested = false; bSave(); bPaint(); }
-function bFocusDone(at){
-  chime(true); awardXp(FOCUS_XP);
-  const b = bn(); b.total++; b.today++; save();
-  Object.assign(B, {phase:'break', running:true, endsAt:at + BREAK_MS, left:BREAK_MS, hiddenAt:null, msg:null, armed:null, harvested:true});
-  bUnwake(); bSave();
-  const c = app.querySelector('#bcount'); if (c) c.textContent = b.today;
-}
-function bBreakDone(){ chime(true); B.phase = 'ready'; B.running = false; B.left = FOCUS_MS; B.afterBreak = true; B.harvested = false; bSave(); }
-// Fecha as fases que já terminaram, mesmo que a tela tenha ficado apagada. A pausa conta a partir do fim do foco.
-function bAdvance(){
-  for (let i = 0; i < 3 && B && B.running && B.endsAt <= Date.now(); i++){
-    if (B.phase === 'focus') bFocusDone(B.endsAt); else bBreakDone();
-  }
-}
-function bWilt(leftAt, instant){
-  B.pW = clamp01(1 - (B.endsAt - leftAt) / FOCUS_MS);
-  Object.assign(B, {phase:'wilted', running:false, hiddenAt:null, w:0, msg:null, armed:null});
-  bUnwake(); bSave(); cancelAnimationFrame(bfall);
-  if (instant || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){ B.w = 1; bPaint(); return; }
-  chime(false);
-  const t0 = performance.now();
-  const step = now => { if (!B || B.phase !== 'wilted') return; B.w = clamp01((now - t0)/1400); bPaint(); if (B.w < 1) bfall = requestAnimationFrame(step); };
-  bPaint(); bfall = requestAnimationFrame(step);
-}
-function bTick(){ if (!B || document.hidden) return; bAdvance(); bPaint(); }
-// Voltou para o app: se ficou fora por mais do que a tolerância (contando só até o fim do foco), a bananeira murcha
-function bBack(){
-  if (!B) return;
-  const now = Date.now();
-  if (B.phase === 'focus' && B.running && B.hiddenAt){
-    const leftAt = B.hiddenAt, away = Math.min(now, B.endsAt) - leftAt;
-    B.hiddenAt = null;
-    if (away > graceMs()){ bWilt(leftAt); return; }
-    bSave(); bWake();
-    if (away >= 3000 && now < B.endsAt) bSay('Voltou a tempo!', 'A bananeira aguentou. Segue firme.', 4000);
-  }
-  bAdvance(); bPaint();
-}
-document.addEventListener('visibilitychange', () => {
-  if (!B) return;
-  if (!document.hidden) return bBack();
-  if (B.phase === 'focus' && B.running){ B.hiddenAt = B.hiddenAt || Date.now(); bSave(); }
-});
-function bQuit(){
-  if (B.phase === 'focus' && bGrowth() > 0 && B.armed !== 'quit'){
-    bArm('quit'); bSay('Sair agora?', 'Se sair, a bananeira murcha e você perde o foco de agora. Toque no X de novo para sair.', 4000); return;
-  }
-  clearTimeout(B.armTimer); clearInterval(btick); cancelAnimationFrame(bfall); bUnwake();
-  delete S.focusRun; save(); B = null; home();
-}
-// Se o app foi fechado ou recarregado no meio de uma sessão, volta para ela (ou para a bananeira murcha)
-function resumeFocus(){
-  const r = S.focusRun, now = Date.now();
-  if (!r) return false;
-  if (!['focus','break'].includes(r.phase) || now - (r.at || 0) > RUN_TTL){ delete S.focusRun; save(); return false; }
-  B = {phase:r.phase, running:!!r.running, endsAt:+r.endsAt || 0, left:+r.left || FOCUS_MS, hiddenAt:r.hiddenAt || null, w:0, pW:0, msg:null, armed:null, armTimer:null, harvested:r.phase === 'break', afterBreak:false, view:{}};
-  bDraw();
-  if (B.phase === 'focus' && B.running && B.hiddenAt){
-    const leftAt = B.hiddenAt, away = Math.min(now, B.endsAt) - leftAt;
-    B.hiddenAt = null;
-    if (away > graceMs()){ bWilt(leftAt, true); return true; }
-  }
-  bAdvance(); bPaint(); bWake();
-  return true;
-}
-
 document.addEventListener('keydown', e => {
   if (!L || e.key !== 'Enter' || e.target.tagName === 'TEXTAREA') return;
   const go = document.getElementById('go'); if (go && !go.disabled && document.activeElement !== go){ e.preventDefault(); go.click(); }
 });
-if (hasTTS) try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => { if (!L && !B) home(); }; } catch(e) {}
-if (!resumeFocus()) home();
+if (hasTTS) try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => { if (!L) home(); }; } catch(e) {}
+home();
 </script>
 
 <script>
