@@ -130,6 +130,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .unit.done .node{background:var(--gold);color:#3A2A00;box-shadow:0 5px 0 #B07B00}
 .unit.custom .node{background:var(--sunk);color:var(--fg);box-shadow:0 5px 0 var(--line)}
 .unit h3{font-size:18px}
+.lvtag{display:inline-block;vertical-align:middle;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--ac-soft);font:700 11px/1.4 var(--body);letter-spacing:.04em}
 .unit p{margin:2px 0 6px;color:var(--muted);font-size:14px}
 .crowns{display:flex;gap:4px;align-items:center;font-size:13px;color:var(--muted)}
 .pip{width:22px;height:6px;border-radius:3px;background:var(--sunk)}
@@ -365,7 +366,98 @@ const T_VENDAS = 'tabela: vendas\n\n mês | produto | qtd\n-----+---------+----\
 const T_ALUNOS = 'tabela: alunos\n\n nome  | turma | nota\n-------+-------+-----\n Ana   | A     |  8\n Bruno | B     |  6\n Carla | A     |  9\n Davi  | B     |  5\n Elisa | A     |  7';
 const COURSES = [
 {id:'en', name:'Inglês', badge:'EN', tts:'en-US', units:[
- {id:'u1', title:'Saudações', desc:'Cumprimentar e se apresentar',
+ {id:'u7', lv:'B1', title:'Expressões do dia a dia', desc:'For once, common sense, mess up',
+  words:[['messy','bagunçado'],['common sense','bom senso'],['for once','pelo menos uma vez'],['mess up','estragar'],['no big deal','nada demais'],['make sense','fazer sentido'],['run out of','ficar sem'],['keep in touch','manter contato']],
+  sents:[['For once, I used my common sense.','Pelo menos uma vez, usei meu bom senso.',['For once, I used common sense.']],
+   ['We must be careful not to mess up the decorations.','Precisamos ter cuidado para não estragar as decorações.'],
+   ['The room looks messy.','O quarto parece bagunçado.',['The room looks very messy.']],
+   ['It is no big deal.','Não é nada demais.',['It is not a big deal.']],
+   ['That does not make sense.','Isso não faz sentido.'],
+   ['We ran out of coffee this morning.','Ficamos sem café esta manhã.'],
+   ['Let us keep in touch.','Vamos manter contato.',['Let us stay in touch.','Let us keep in contact.']],
+   ['Why not give it a try?','Por que não experimentar?',['Why do not you give it a try?']]]},
+ {id:'u8', lv:'B1', title:'Deveria ter feito', desc:'Should have, could have, would have',
+  words:[['regret','arrepender-se'],['mistake','erro'],['advice','conselho'],['decision','decisão'],['instead','em vez disso'],['on time','no horário'],['forgot','esqueceu'],['missed','perdeu']],
+  sents:[['You should have studied more.','Você deveria ter estudado mais.'],
+   ['I should have called her yesterday.','Eu deveria ter ligado para ela ontem.'],
+   ['We could have taken a taxi.','Nós poderíamos ter pegado um táxi.'],
+   ['She would have come if she had known.','Ela teria vindo se soubesse.',['She would have come if she had known about it.']],
+   ['He missed the bus because he left late.','Ele perdeu o ônibus porque saiu tarde.'],
+   ['I regret not asking for help.','Eu me arrependo de não ter pedido ajuda.'],
+   ['If I were you, I would apologize.','Se eu fosse você, eu pediria desculpas.',['If I was you, I would apologize.']],
+   ['It was a mistake, and I learned from it.','Foi um erro, e eu aprendi com ele.',['It was a mistake and I learned from it.']]]},
+ {id:'u9', lv:'B1', title:'Já aconteceu?', desc:'Present perfect: already, yet, ever',
+  words:[['already','já'],['yet','ainda (em perguntas e negativas)'],['ever','alguma vez'],['never','nunca'],['recently','recentemente'],['since','desde'],['lately','ultimamente'],['so far','até agora']],
+  sents:[['Have you ever been to London?','Você já esteve em Londres?'],
+   ['I have already finished the report.','Eu já terminei o relatório.'],
+   ['She has not replied yet.','Ela ainda não respondeu.'],
+   ['We have lived here since 2020.','Moramos aqui desde 2020.',['We have lived here since the year 2020.']],
+   ['He has worked here for five years.','Ele trabalha aqui há cinco anos.'],
+   ['I have never tried sushi.','Eu nunca experimentei sushi.'],
+   ['Have you seen my keys?','Você viu minhas chaves?'],
+   ['So far, the project has gone well.','Até agora, o projeto foi bem.',['So far the project has gone well.']]]},
+ {id:'u10', lv:'B1', title:'Direções e lugares', desc:'Explicar como chegar a um lugar',
+  words:[['straight ahead','em frente'],['turn left','vire à esquerda'],['block','quarteirão'],['corner','esquina'],['traffic light','semáforo'],['nearby','por perto'],['opposite','em frente a'],['on foot','a pé']],
+  sents:[['Go straight ahead for two blocks.','Siga em frente por dois quarteirões.',['Go straight for two blocks.','Keep going straight for two blocks.']],
+   ['Turn left at the traffic light.','Vire à esquerda no semáforo.'],
+   ['The bank is on the corner, next to the pharmacy.','O banco fica na esquina, ao lado da farmácia.',['The bank is on the corner next to the pharmacy.']],
+   ['Is there a supermarket nearby?','Tem algum supermercado por perto?',['Is there a supermarket near here?']],
+   ['It is about ten minutes on foot.','São cerca de dez minutos a pé.',['It is about 10 minutes on foot.','It is about ten minutes walking.']],
+   ['Cross the street and you will see the station.','Atravesse a rua e você verá a estação.'],
+   ['I think we took the wrong turn.','Acho que fizemos a curva errada.',['I think we made a wrong turn.']],
+   ['Could you tell me how to get to the airport?','Você poderia me dizer como chegar ao aeroporto?',['Can you tell me how to get to the airport?']]]},
+ {id:'u11', lv:'B1', title:'Phrasal verbs', desc:'Look for, give up, find out',
+  words:[['look for','procurar'],['give up','desistir'],['find out','descobrir'],['turn off','desligar'],['get along with','se dar bem com'],['pick up','buscar'],['bring up','mencionar'],['set up','criar, configurar']],
+  sents:[['I am looking for my glasses.','Estou procurando meus óculos.'],
+   ['Do not give up on your goals.','Não desista dos seus objetivos.'],
+   ['We found out the truth yesterday.','Descobrimos a verdade ontem.'],
+   ['Please turn off the lights when you leave.','Por favor, apague as luzes quando sair.',['Please turn the lights off when you leave.']],
+   ['She gets along well with her coworkers.','Ela se dá bem com os colegas de trabalho.',['She gets along well with her colleagues.']],
+   ['Can you pick me up at the airport?','Você pode me buscar no aeroporto?',['Could you pick me up at the airport?']],
+   ['He brought up an interesting idea in the meeting.','Ele mencionou uma ideia interessante na reunião.'],
+   ['I need to set up a new account.','Preciso criar uma conta nova.']]},
+ {id:'u12', lv:'B2', title:'Contar uma história', desc:'Narrar com tempos do passado',
+  words:[['suddenly','de repente'],['meanwhile','enquanto isso'],['eventually','por fim'],['at first','no começo'],['after that','depois disso'],['in the end','no final'],['while','enquanto'],['whenever','sempre que']],
+  sents:[['At first, nobody noticed the noise.','No começo, ninguém notou o barulho.',['At first nobody noticed the noise.']],
+   ['While I was cooking, the phone rang.','Enquanto eu cozinhava, o telefone tocou.',['While I was cooking the phone rang.']],
+   ['Suddenly, the lights went out.','De repente, as luzes se apagaram.',['Suddenly the lights went out.']],
+   ['She had already left when I arrived.','Ela já tinha saído quando eu cheguei.'],
+   ['Meanwhile, the others were waiting outside.','Enquanto isso, os outros esperavam do lado de fora.',['Meanwhile the others were waiting outside.']],
+   ['Eventually, we found the way back.','Por fim, encontramos o caminho de volta.',['Eventually we found the way back.']],
+   ['He told us what had happened.','Ele nos contou o que tinha acontecido.'],
+   ['In the end, everything turned out fine.','No fim das contas, tudo deu certo.',['In the end everything turned out fine.','In the end, everything turned out well.']]]},
+ {id:'u13', lv:'B2', title:'Condições e contrastes', desc:'If, unless, although, however',
+  words:[['unless','a menos que'],['as long as','contanto que'],['in case','caso'],['otherwise','caso contrário'],['whether','se (ou não)'],['although','embora'],['however','no entanto'],['therefore','portanto']],
+  sents:[['If it rains, we will stay home.','Se chover, ficaremos em casa.',['If it rains we will stay home.']],
+   ['If I had more time, I would learn French.','Se eu tivesse mais tempo, aprenderia francês.',['If I had more time I would learn French.']],
+   ['Unless you hurry, you will miss the train.','A menos que você se apresse, vai perder o trem.',['Unless you hurry you will miss the train.']],
+   ['Take an umbrella in case it rains.','Leve um guarda-chuva caso chova.'],
+   ['You can borrow my car as long as you drive carefully.','Você pode pegar meu carro emprestado contanto que dirija com cuidado.'],
+   ['Although it was late, we kept working.','Embora fosse tarde, continuamos trabalhando.',['Although it was late we kept working.']],
+   ['I am not sure whether he will come.','Não tenho certeza se ele virá.',['I am not sure if he will come.']],
+   ['The traffic was bad. However, we arrived on time.','O trânsito estava ruim. No entanto, chegamos no horário.',['The traffic was bad. However we arrived on time.']]]},
+ {id:'u14', lv:'B2', title:'Opiniões e séries', desc:'Concordar, discordar e comentar',
+  words:[['opinion','opinião'],['agree','concordar'],['disagree','discordar'],['actually','na verdade'],['honestly','sinceramente'],['plot','enredo'],['episode','episódio'],['ending','final']],
+  sents:[['In my opinion, the second season was better.','Na minha opinião, a segunda temporada foi melhor.',['In my opinion the second season was better.']],
+   ['I totally agree with you.','Concordo totalmente com você.',['I completely agree with you.']],
+   ['Actually, I did not like the ending.','Na verdade, eu não gostei do final.',['Actually I did not like the ending.']],
+   ['I see your point, but I disagree.','Entendo seu ponto, mas discordo.',['I see your point but I disagree.']],
+   ['It was pretty good, to be honest.','Foi bem bom, para ser sincero.',['To be honest, it was pretty good.']],
+   ['What do you think about the new series?','O que você acha da nova série?',['What do you think of the new series?']],
+   ['I could not stop watching it.','Não consegui parar de assistir.',['I could not stop watching.']],
+   ['The plot was hard to follow.','O enredo era difícil de acompanhar.',['The story was hard to follow.']]]},
+ {id:'u15', lv:'B2', title:'Trabalho avançado', desc:'E-mails, prazos e negociação',
+  words:[['follow up','dar seguimento'],['schedule','cronograma'],['approach','abordagem'],['proposal','proposta'],['delay','atraso'],['client','cliente'],['budget','orçamento'],['update','atualizar']],
+  sents:[['I am writing to follow up on our meeting.','Estou escrevendo para dar seguimento à nossa reunião.'],
+   ['Could we move the deadline to next week?','Poderíamos adiar o prazo para a semana que vem?',['Could we postpone the deadline to next week?','Can we move the deadline to next week?']],
+   ['I will get back to you by the end of the day.','Retorno para você até o fim do dia.',['I will get back to you by end of day.']],
+   ['Please let me know if you have any questions.','Por favor, me avise se tiver alguma dúvida.',['Let me know if you have any questions.']],
+   ['We are behind schedule because of the delay.','Estamos atrasados no cronograma por causa do atraso.',['We are behind schedule due to the delay.']],
+   ['I would like to suggest a different approach.','Eu gostaria de sugerir uma abordagem diferente.',['I would like to suggest another approach.']],
+   ['The client asked us to update the proposal.','O cliente nos pediu para atualizar a proposta.'],
+   ['Thank you for your patience and understanding.','Obrigado pela sua paciência e compreensão.']]},
+
+ {id:'u1', lv:'A1', title:'Saudações', desc:'Cumprimentar e se apresentar',
   words:[['hello','olá'],['good morning','bom dia'],['goodbye','tchau'],['thank you','obrigado'],['please','por favor'],['name','nome'],['friend','amigo'],['tomorrow','amanhã']],
   sents:[['Hello, my name is Ana.','Olá, meu nome é Ana.',['Hi, my name is Ana.']],
    ['Good morning, how are you?','Bom dia, como você está?'],
@@ -375,7 +467,7 @@ const COURSES = [
    ['See you tomorrow.','Até amanhã.'],
    ['This is my friend.','Este é meu amigo.'],
    ['Where are you from?','De onde você é?']]},
- {id:'u2', title:'Verbo to be', desc:'Ser e estar: am, is, are',
+ {id:'u2', lv:'A1', title:'Verbo to be', desc:'Ser e estar: am, is, are',
   words:[['happy','feliz'],['tired','cansado'],['cold','frio'],['teacher','professor'],['parents','pais'],['home','casa'],['table','mesa'],['today','hoje']],
   sents:[['She is a teacher.','Ela é professora.'],
    ['We are from Brazil.','Nós somos do Brasil.'],
@@ -385,7 +477,7 @@ const COURSES = [
    ['I am very happy today.','Eu estou muito feliz hoje.'],
    ['It is cold outside.','Está frio lá fora.'],
    ['The book is on the table.','O livro está na mesa.']]},
- {id:'u3', title:'Rotina', desc:'Presente simples no dia a dia',
+ {id:'u3', lv:'A1', title:'Rotina', desc:'Presente simples no dia a dia',
   words:[['wake up','acordar'],['work','trabalhar'],['breakfast','café da manhã'],['always','sempre'],['never','nunca'],['every day','todo dia'],['study','estudar'],['night','noite']],
   sents:[['I wake up at seven.','Eu acordo às sete.',['I wake up at 7.']],
    ['She works in a hospital.','Ela trabalha em um hospital.'],
@@ -395,7 +487,7 @@ const COURSES = [
    ['They go to school by bus.','Eles vão para a escola de ônibus.'],
    ['I do not work on Sundays.','Eu não trabalho aos domingos.'],
    ['My brother always reads at night.','Meu irmão sempre lê à noite.']]},
- {id:'u4', title:'Comida', desc:'No restaurante e na cozinha',
+ {id:'u4', lv:'A2', title:'Comida', desc:'No restaurante e na cozinha',
   words:[['water','água'],['bread','pão'],['apple','maçã'],['chicken','frango'],['rice','arroz'],['cheese','queijo'],['menu','cardápio'],['delicious','delicioso']],
   sents:[['I would like a glass of water.','Eu gostaria de um copo de água.'],
    ['The bread is very fresh.','O pão está muito fresco.'],
@@ -405,7 +497,7 @@ const COURSES = [
    ['This cake is delicious.','Este bolo está delicioso.'],
    ['She does not like cheese.','Ela não gosta de queijo.'],
    ['How much is the coffee?','Quanto custa o café?',['How much does the coffee cost?']]]},
- {id:'u5', title:'Passado', desc:'Contar o que aconteceu',
+ {id:'u5', lv:'A2', title:'Passado', desc:'Contar o que aconteceu',
   words:[['yesterday','ontem'],['last week','semana passada'],['ago','atrás'],['bought','comprou'],['went','foi'],['was','estava'],['lunch','almoço'],['beach','praia']],
   sents:[['I went to the beach yesterday.','Eu fui à praia ontem.'],
    ['She bought a new phone.','Ela comprou um celular novo.',['She bought a new cell phone.','She bought a new cellphone.']],
@@ -415,7 +507,7 @@ const COURSES = [
    ['They lived in London two years ago.','Eles moraram em Londres dois anos atrás.'],
    ['I was very tired.','Eu estava muito cansado.'],
    ['What did you eat for lunch?','O que você comeu no almoço?']]},
- {id:'u6', title:'No trabalho', desc:'Reuniões, e-mails e prazos',
+ {id:'u6', lv:'A2', title:'No trabalho', desc:'Reuniões, e-mails e prazos',
   words:[['meeting','reunião'],['deadline','prazo'],['boss','chefe'],['coworker','colega de trabalho'],['office','escritório'],['report','relatório'],['call','ligação'],['vacation','férias']],
   sents:[['I have a meeting at ten.','Eu tenho uma reunião às dez.',['I have a meeting at 10.']],
    ['Can you send me the report?','Você pode me enviar o relatório?',['Could you send me the report?']],
@@ -1245,7 +1337,7 @@ function home(){
         const empty = u.custom && (u.words.length + u.sents.length) < 3;
         return `<button class="unit ${full?'done':''} ${u.custom?'custom':''}" data-u="${u.id}">
           <div class="node">${u.custom ? '+' : ix+1}</div>
-          <div><h3>${esc(u.title)}</h3><p>${empty ? 'Adicione pelo menos 3 itens na aba Minhas aulas' : esc(u.desc)}</p>
+          <div><h3>${esc(u.title)}${u.lv ? `<span class="lvtag">${u.lv}</span>` : ''}</h3><p>${empty ? 'Adicione pelo menos 3 itens na aba Minhas aulas' : esc(u.desc)}</p>
             <div class="crowns">${Array.from({length:LESSONS_PER_UNIT},(_,i)=>`<span class="pip ${i<done?'on':''}"></span>`).join('')}<span>&nbsp;${Math.min(done,LESSONS_PER_UNIT)}/${LESSONS_PER_UNIT}</span></div>
           </div></button>`; }).join('')}
       </div>`;
@@ -1885,12 +1977,15 @@ const SCENES = [
   {id:'viagem', pt:'Viagem', en:'checking in at the airport and the hotel during a trip; Volipe is the staff member'},
   {id:'entrevista', pt:'Entrevista de emprego', en:'a job interview; Volipe is the interviewer'},
   {id:'amigos', pt:'Fazer amigos', en:'meeting someone new at a party and getting to know each other'},
+  {id:'direcoes', pt:'Pedir direções', en:'asking for and giving directions in a city; Volipe is a local who explains how to get somewhere'},
+  {id:'serie', pt:'Falar de séries', en:'discussing a TV show or movie: plot, opinions, agreeing and disagreeing'},
   {id:'trabalho', pt:'No trabalho', en:'talking with a coworker about tasks, meetings and deadlines'},
 ];
 const LEVELS_TALK = {
   a1:{pt:'Iniciante', en:'beginner (CEFR A1): use very simple, common words and short present-tense sentences'},
   a2:{pt:'Básico', en:'elementary (CEFR A2): simple everyday language, past and future are fine'},
   b1:{pt:'Intermediário', en:'intermediate (CEFR B1): natural everyday language with some idioms'},
+  b2:{pt:'Avançado', en:'upper-intermediate (CEFR B2): natural, fluent language with idioms, phrasal verbs and varied tenses; do not slow down or oversimplify'},
 };
 const LANG_EN = {en:'English', es:'Spanish', fr:'French', zh:'Mandarin Chinese (simplified characters)'};
 const PWA = !!window.MACAQUES_PWA;
@@ -1900,7 +1995,8 @@ let T = null; // conversa em andamento
 
 function talkBrain(){ return SAMPLE ? 'claude' : null; }
 function talkCard(c){
-  const t = S.talk || (S.talk = {scene:'livre', level:'a1'});
+  const t = S.talk || (S.talk = {scene:'livre', level:'b2', lvMig:1});
+  if (!t.lvMig){ t.level = 'b2'; t.lvMig = 1; save(); }
   const brain = talkBrain();
   const why = brain ? '' : window.claude ? '<p class="note" style="margin:0">Carregando o Volipe…</p>'
     : `<p class="note" style="margin:0">A conversa usa o Claude da sua conta, sem custo extra, e por isso só funciona no app aberto pelo claude.ai. Lá, fale usando o microfone do teclado.</p>`;

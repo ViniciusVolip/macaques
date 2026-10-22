@@ -11,6 +11,7 @@ No Chrome do Android, toque em ⋮ e depois em **Instalar app**.
 - **Matemática para o Enem**, **Programação (Python)**, **Dados** e **IA e prompts**.
 - **Xadrez:** exercícios e partidas contra o Volipe em três níveis.
 - **Flashcards** com repetição espaçada.
+- **Inglês B1 e B2:** 9 unidades novas (expressões do dia a dia, should have, present perfect, direções, phrasal verbs, narrativa, condições, opiniões e trabalho avançado), com selo de nível. As unidades A1 e A2 continuam no fim da trilha para revisão.
 - XP, sequência de dias, vidas e revisão de erros.
 - Funciona offline depois de aberto uma vez.
 
