@@ -351,6 +351,18 @@ select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--lin
   @keyframes sh{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 }
 
+/* quebra-cabeças */
+.pzrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pzbox{background:var(--sunk);border-radius:16px;padding:8px 6px;text-align:center;display:grid;gap:2px}
+.pzbox b{font:800 22px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.pzbox span{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.pzpill{display:flex;align-items:baseline;gap:6px;background:var(--ac-soft);border-radius:999px;padding:4px 14px;font:800 17px var(--display);font-variant-numeric:tabular-nums}
+.pzpill i{font:700 13px var(--body);font-style:normal}.pzpill i.up{color:var(--ok)}.pzpill i.down{color:var(--bad)}
+.pzmeta{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:14px}
+.pzmeta span:last-child{color:var(--muted)}
+.pzend{display:grid;gap:10px;text-align:center;justify-items:center;padding-top:30px}
+.pzend p{margin:0;color:var(--muted)}
+.pzend .gbtns{justify-content:center;flex-wrap:wrap}.pzend .gbtns .btn{flex:none;white-space:nowrap;padding:12px 22px}
 </style>
 
 </head>
@@ -1331,7 +1343,7 @@ function home(){
       ${goalCard(g)}
       ${noChess ? '<p class="note" style="margin-top:12px">As regras do xadrez não carregaram. Verifique a conexão e abra a página de novo.</p>' : ''}
       ${nMist && !noChess ? `<button class="review" id="rev">Revisar erros (${nMist} ${nMist>1?'itens':'item'})</button>` : ''}
-      ${c.chess && !noChess ? playCard() : ''}${!c.chess ? fcCard(c) : ''}${c.tts && !c.items ? talkCard(c) : ''}
+      ${c.chess && !noChess ? pzCard() + playCard() : ''}${!c.chess ? fcCard(c) : ''}${c.tts && !c.items ? talkCard(c) : ''}
       <div class="path">${unitsOf(c).map((u,ix) => {
         const done = (cs.units[u.id]||0), full = done >= LESSONS_PER_UNIT;
         const empty = u.custom && (u.words.length + u.sents.length) < 3;
@@ -1348,7 +1360,7 @@ function home(){
       start(u, buildLesson(c, u));
     });
     const r = body.querySelector('#rev'); if (r) r.onclick = () => start({id:'review', title:'Revisão'}, buildReview(c));
-    if (c.chess && !noChess) bindPlayCard(body);
+    if (c.chess && !noChess){ bindPzCard(body); bindPlayCard(body); }
     if (c.tts && !c.items) bindTalkCard(body, c);
     if (!c.chess) bindFcCard(body, c);
     let gi = 0, mt = null;
@@ -2407,11 +2419,451 @@ function goalCard(g){
       <div class="wk" aria-label="XP dos últimos 7 dias">${days.map(d => `<div class="wkd${d.k===today()?' t':''}" title="${d.xp} XP"><i style="height:${Math.max(8, Math.round(d.xp/mx*100))}%"></i><span>${d.l}</span></div>`).join('')}</div>
     </div></div>`;
 }
+
+// ---------- Quebra-cabeças (estilo Chess.com) ----------
+// [posição, solução, tipo, rating, dica]. Tipo 1 = mate em 1 (qualquer mate vale), 2 = mate em 2 (o primeiro lance é único e,
+// qualquer que seja a defesa, existe mate no lance seguinte), 0 = lance tático (qualquer lance da lista vale). Todos verificados com o chess.js.
+const PUZZLES = [
+ ["q7/2n2k1K/3p4/2p5/8/8/8/8 b - - 7 65","a8h1",1,430],
+ ["6q1/2n2k2/3p3K/2p5/8/8/8/8 b - - 9 66","g8g6",1,430],
+ ["8/6Q1/8/5k2/4nP2/P6P/8/B1K3N1 w - - 6 64","g7g4",1,450],
+ ["b2k4/3p1K2/1p6/7r/7p/8/6r1/8 b - - 16 62","h5f5",1,480],
+ ["5K2/2p5/3ppk2/4b2r/4P3/8/8/8 b - - 5 70","h5h8",1,480],
+ ["8/8/7R/3P1k2/3P3Q/8/4P3/6NK w - - 1 64","h6f6",1,480],
+ ["4k3/1R6/R7/4p3/3p4/7K/5r1P/8 w - - 0 62","a6a8",1,480],
+ ["2Q5/p2pk2p/1r5q/7P/1bBP4/1P6/P7/R2K4 b - - 0 31","h6d2",1,490],
+ ["3k4/1R6/8/3pp3/8/5R1K/5P1P/5r2 w - - 4 49","f3f8",1,490],
+ ["6k1/5nr1/8/5p1K/5P1P/8/6n1/8 b - - 0 57","g2f4",1,500],
+ ["8/6Q1/8/7k/3B1P2/P5PP/7n/2K3N1 w - - 3 58","g7h7",1,500],
+ ["7R/3pkp1p/1p1p2P1/3Pp3/8/1q6/1r3PRP/6K1 b - - 0 36","b3d1",1,500],
+ ["8/3r4/2k1pp2/1p5p/4p1pK/5q2/8/8 b - - 9 55","f3h3",1,500],
+ ["8/p2pk2p/1r6/3P4/1bQ5/1P6/q7/3K4 b - - 1 38","a2d2",1,510],
+ ["6k1/8/7Q/8/3B4/P5PP/5P1n/1b1K2N1 w - - 17 46","h6g7",1,510],
+ ["8/7k/8/6Q1/3B4/P5PP/5P1n/1b1K2N1 w - - 19 47","g5g7",1,510],
+ ["8/5p2/1k4p1/1P1q4/5Kp1/8/2P4P/bN3n2 b - - 0 45","d5f5",1,510],
+ ["7k/1R6/2pR4/8/3P2P1/3r4/3P1P2/1NB2K2 w - - 3 48","d6d8",1,510],
+ ["1k6/R7/8/1N6/pP3K2/P6P/1P2R3/6r1 w - - 10 55","e2e8",1,510],
+ ["6k1/3Q4/3Q4/3P4/1P1P4/8/4PPKR/1q4N1 w - - 4 42","d6b8",1,510],
+ ["4k3/8/3Q4/3P4/1P1P1Q2/8/4PPKR/1q4N1 w - - 10 45","f4f8",1,510],
+ ["5k2/3p3R/1p1p2R1/3qp3/8/8/4rP1P/6K1 b - - 0 40","e2e1",1,510],
+ ["r5nr/6p1/b6k/7P/4p1qP/R1Pn1N2/3PK3/1N5R b - - 2 31","g4f3",1,510],
+ ["4r1rk/pppb3p/4pp1P/P1n4P/8/4p2K/4q3/8 b - - 0 40","e2h5",1,510],
+ ["8/p7/3p1k2/b2P4/5K2/8/6q1/3r4 b - - 13 55","a5d2",1,520],
+ ["3b4/p7/3p1k2/8/8/3r4/7K/5q2 b - - 9 61","d3h3",1,520],
+ ["3b4/p7/3p1k2/8/8/3r3q/8/6K1 b - - 11 62","d8b6",1,520],
+ ["b2k1K2/3p4/1p6/2r5/7p/6r1/8/8 b - - 8 58","c5f5",1,520],
+ ["8/5p2/1k2q1p1/1p6/P4Kp1/8/2P4P/bN3n2 b - - 0 44","e6f5",1,520],
+ ["5k2/3p3R/1p1p2p1/3qp3/6R1/8/1r3P1P/6K1 b - - 2 39","b2b1",1,520],
+ ["r1b1r1k1/ppp4p/n3pp1P/P7/8/4p2B/4q2P/6KR b - - 1 31","e2f2",1,520],
+ ["r1b1r1k1/ppp4p/n3pp1P/P7/8/4p3/7P/4qBKR b - - 3 32","e1f2",1,520],
+ ["1n2nk2/7R/2rp2p1/p2Q1b1p/PpP2P1P/6P1/3K3b/2B5 w - - 1 57","d5f7",1,530],
+ ["2Q5/p2pk2p/1r6/3P2q1/1bB5/1P6/P7/R2K4 b - - 2 34","g5d2",1,530],
+ ["8/R5p1/4p2p/4n1P1/1k4P1/2R5/2PBNP2/3QK3 w - - 3 32","d1b1",1,530],
+ ["8/8/6Q1/4pp2/4k3/P2bB1PP/5P1n/R3K1N1 w Q - 0 28","g6c6",1,530],
+ ["8/8/6Q1/4pp2/4k3/P2bB1PP/5P1n/1R1K2N1 w - - 4 30","g6c6",1,530],
+ ["8/8/1R4Q1/4pp2/4k3/P2bB1PP/5P2/3K1nN1 w - - 6 31","g6c6",1,530],
+ ["6r1/2N5/2B2ppn/k6p/8/B7/2PPP3/1Q3K2 w - - 1 48","b1b4",1,530],
+ ["6r1/2N5/2B2p1n/k5pp/2P5/B7/3PP3/1Q3K2 w - - 0 49","b1b4",1,530],
+ ["4B1r1/2N5/5p1n/k5p1/2P4p/B7/3PP3/1Q3K2 w - - 0 50","b1b4",1,530],
+ ["1n3b1r/4pp2/2kp3n/1p6/N1q5/5b2/1P6/R3K3 b - - 7 33","c4e2",1,530],
+ ["1BQ5/7k/4R3/5N1p/1P3P2/K7/8/8 w - - 1 66","e6h6",1,530],
+ ["8/k7/3Q4/4P3/8/2p1P3/P5B1/4KR2 w - - 21 67","f1f7",1,530],
+ ["2k5/8/3Q4/4P3/8/2p1P3/P5B1/4KR2 w - - 27 70","f1f8",1,530],
+ ["N6r/8/1B3ppn/7p/1k5q/2R5/Q1PPP1B1/5K2 w - - 2 42","a2a5",1,540],
+ ["N6r/8/k4ppn/2B4p/7q/2R5/2PPP1B1/1Q3K2 w - - 6 44","b1b6",1,540],
+ ["7r/2N5/5ppn/k1B4p/7q/2R5/2PPP1B1/1Q3K2 w - - 8 45","b1b5",1,540],
+ ["8/4pp2/b2p4/3n4/p4k2/4n3/6r1/4K3 b - - 32 63","g2e2",1,540],
+ ["7R/3pkp1p/1p1p4/3Pp1P1/8/7q/1r3PRP/6K1 b - - 0 35","b2b1",1,540],
+ ["1nb2kn1/r5b1/pp2pp2/3p3p/P2P2p1/1qRKP3/4NP2/5B2 b - - 1 37","b3d1",1,540],
+ ["8/k7/r7/4K3/6R1/P6P/3N2B1/1RB5 w - - 8 60","g4g7",1,540],
+ ["k7/1R6/r7/4K3/6R1/P6P/3N2B1/2B5 w - - 10 61","g4g8",1,540],
+ ["8/k7/r7/4K3/6R1/PR5P/3N2B1/2B5 w - - 12 62","g4g7",1,540],
+ ["2b1k1nQ/p2p1R1p/1r5q/7P/1b1P4/1P6/P3B3/R2K4 b - - 3 28","h6d2",1,550],
+ ["1n2k1nr/6p1/r7/4ppBp/1b2b2P/4p1P1/7K/3q4 b - - 3 32","d1h1",1,550],
+ ["1n2k1nr/6p1/8/4ppBp/1b5P/4p1P1/r5bK/3q4 b - - 7 34","d1h1",1,550],
+ ["2k1r2b/2p4p/8/p1p5/P7/1P3R1N/2n2PRP/2B2K2 b - - 4 35","e8e1",1,550],
+ ["N5nr/B5p1/5p2/1R5p/k6P/8/2PPPKBq/1Q6 w - - 3 35","b1b3",1,550],
+ ["N6r/6p1/1B3p1n/7p/1R5P/k7/2PPPKBq/1Q6 w - - 7 37","b1b2",1,550],
+ ["N6r/6p1/1B3p1n/7p/k6P/1R6/2PPPKBq/1Q6 w - - 9 38","b1a2",1,550],
+ ["2r5/4pp2/n2p3n/8/p4k2/5b2/8/5Kb1 b - - 1 46","c8c1",1,550],
+ ["r1b1k1r1/pp1nbp1p/3p1B2/2p4P/8/1PNPQ3/4PP2/4KB1R w Kq - 5 16","e3e7",1,550],
+ ["r1b1k1r1/1p1nbp1p/3p1B2/p1p4P/N7/1P1PQ3/4PP2/4KB1R w Kq a6 0 17","e3e7",1,550],
+ ["r1bq3r/pp1p2bp/3kppp1/Q1p5/2P2Pn1/BP1P3N/P3P2P/RN2KB1R w KQ - 2 12","a5c5",1,560],
+ ["8/2Q5/6k1/8/5PPP/4B2K/1PPRN2R/1N6 w - - 3 52","d2d6",1,560],
+ ["1n2kbnr/r5p1/8/4ppBp/1P1p3P/5KP1/4P3/1b1q4 b - - 0 28","d1f1",1,560],
+ ["2b1kb2/1p1p1pp1/4p3/7r/K3P3/N2PQN2/r6P/n3R3 b - - 3 26","a2a3",1,560],
+ ["4k3/R7/4N3/4P3/2p1P3/1P1B1K2/PP3N2/7R w - - 1 45","h1h8",1,560],
+ ["r3r1k1/pppb3p/n3pp1P/P7/7P/4p3/8/4qBKR b - h3 0 33","e1f2",1,560],
+ ["4k2r/1n3pp1/4p3/1p2p3/4br2/1P4R1/8/6K1 b - - 7 43","h8h1",1,560],
+ ["8/6p1/4p3/4n1p1/kB4P1/1R6/2P1NP2/3K4 w - - 0 42","e2c3",1,570],
+ ["3Q4/8/2k5/4pp2/1R6/P2bB1PP/5P2/3K1nN1 w - - 12 34","b4b6",1,570],
+ ["r3r1n1/pRQ4p/6bk/2p2p2/8/2BPb2P/P1N1B1R1/3K4 w - - 0 35","c7g7",1,570],
+ ["8/R7/4p1k1/2p1PN2/4P3/1P1B1K2/PP3N2/7R w - - 5 41","a7g7",1,570],
+ ["5k2/R7/4p3/2pNP3/4P3/1P1B1K2/PP3N2/7R w - - 9 43","h1h8",1,570],
+ ["5k2/R7/4p3/4P3/2p1PN2/1P1B1K2/PP3N2/7R w - - 0 44","h1h8",1,570],
+ ["2b3qr/7p/3Q4/2p2p2/2P5/3PNkP1/PP3P1P/R1BK3R w - - 1 23","d6f4",1,570],
+ ["7R/3pkp1p/1p1p2P1/3qp1R1/8/8/1r3P1P/6K1 b - - 1 37","b2b1",1,570],
+ ["rnb1k2r/1ppp1pp1/p2n4/4p2q/P1P3B1/8/1PQP1b1P/1RBK3R b kq - 1 14","h5g4",1,570],
+ ["1nb1k1nr/r1p5/pp2p2p/8/P1BPK3/2P1R3/1P6/RNB2q2 b - - 5 33","f1f5",1,580],
+ ["8/6p1/4p2p/4n1P1/kB4P1/1R6/2P1NP2/4K3 w - - 8 41","e2c3",1,580],
+ ["1q1r2kr/7p/2pp1Q2/1p5B/p2PP2P/P1N3P1/R2K3R/6N1 w - - 1 32","f6f7",1,580],
+ ["1q1r2kr/7p/2p2Q2/1p1p3B/p2PP2P/P1N3P1/R3K2R/6N1 w - - 0 33","f6f7",1,580],
+ ["1q1r2kr/7p/2p2QB1/1p1p4/p2PP2P/P1N3P1/R3K2R/6N1 w - - 4 35","f6f7",1,580],
+ ["N6r/8/1B3ppn/7p/k6q/2R5/2PPP1B1/1Q3K2 w - - 0 41","g2c6",1,580],
+ ["rn1B1b2/r7/P5n1/6N1/2R1pkBp/2P4P/1PK2PP1/1N5R w - - 0 43","c4e4",1,580],
+ ["rnb1r1k1/ppp4p/3qpp1P/P7/5n2/4p2B/2R4P/5KNR b - - 5 25","d6d1",1,580],
+ ["1r4nr/qb5p/2k3p1/2P1Q3/5P2/1PN3PP/P2N1K2/R1B2B1R w - - 5 28","e5d6",1,580],
+ ["2b3r1/5kpp/1pp1p3/6p1/1pq3Pn/7N/3KPP1B/r4B1R b - - 6 28","c4c3",1,580],
+ ["rnb4r/1p1pk2p/8/4p1Nn/8/2Pq3P/1P6/2K3R1 b - - 6 38","a8a1",1,590],
+ ["1n2k1nr/6p1/r7/4ppBp/1b1p3P/4P1P1/5K2/1b1q4 b - - 0 30","a6a2",1,590],
+ ["r3r1n1/pRQ4p/4p1bk/2p2pb1/6P1/2BPP2P/P1N1B1R1/2K5 w - f6 0 33","c7g7",1,590],
+ ["6qr/3b3p/8/2Q2p2/2P5/1P1PN1P1/P4k1P/R1BK3R w - - 0 25","h1f1",1,590],
+ ["1B5k/8/3NR1Q1/8/1P3P1p/K7/8/8 w - - 4 69","d6f7",1,590],
+ ["r5nr/6p1/b6k/7P/6qP/R1PnKp2/3P4/1N5R b - - 1 32","a8e8",1,590],
+ ["8/4B3/2p1p3/1p1p3p/3P2k1/2P2R1N/PK2P3/8 w - - 12 52","h3f2",1,590],
+ ["1n2kbnr/r5p1/8/4ppBp/3p3P/1P3KP1/4P3/1b4q1 b - - 0 27","b1e4",1,600],
+ ["r1b3r1/5kpp/1pp1p3/2P3p1/np1q2Pn/7N/4PP1B/2KR1B1R b - - 1 22","d4b2",1,600],
+ ["8/p2Q2pp/2p2kq1/5p1n/K4P1P/2P3P1/1P3B2/1N3BNR w - - 7 34","f2d4",1,610],
+ ["rn2kb1r/p1qppp1p/b7/5nB1/Q2P4/2P2P1P/4PKP1/RN3BNR b kq - 0 11","c7g3",1,620],
+ ["rn1k1b1r/p1qppp1p/b7/5nB1/3P4/Q1P2P1P/4PKP1/RN3BNR b - - 2 12","c7g3",1,620],
+ ["rn2kb1r/p1qppp1p/b7/1p3nB1/P2P4/2P2P1P/4PKP1/RN1Q1BNR b kq - 0 10","c7g3",1,630],
+ ["1r4nr/1b3Q1p/1qkb2p1/8/3P1P2/1PN3PP/P2N1K2/R1B2B1R w - - 3 24","f1g2",1,630],
+ ["6nr/6Q1/4k2p/8/3R1PPP/4B2K/1PP1N2R/1N6 w - - 21 47","f4f5",1,640],
+ ["N6r/8/5ppn/1kB4p/7q/2R5/Q1PPP1B1/5K2 w - - 4 43","a8c7",1,640],
+ ["rnb2bnr/1p2p1p1/1q1p1p2/p1p1k2p/B4N1N/1P2PP2/P1PP2PP/R1BQK2R w KQ - 1 13","c1b2",1,650],
+ ["r5rk/pppb3p/4pp1P/P1n5/7P/4p2K/4q3/8 b - - 1 39","e6e5",1,650],
+ ["rn1B1b2/r7/P5n1/2ppp1N1/5kBp/R1PP3P/1PK2PP1/1N5R w - - 13 38","g5e6",1,700],
+ ["rn1B1b2/r7/P5n1/3pp1N1/R1p2kBp/2PP3P/1PK2PP1/1N5R w - - 0 41","g5e6",1,700],
+ ["8/p7/1r1p1k2/b2P4/8/1P1K4/8/q7 b - - 1 47","b6b3",2,900],
+ ["3b4/p7/3p1k2/8/8/3q4/5K2/3r4 b - - 5 59","d1d2",2,900],
+ ["b2k2K1/3p4/1p6/2r5/7p/5r2/8/8 b - - 10 59","f3g3",2,900],
+ ["q3k2K/2n5/3p4/2p5/8/8/8/8 b - - 5 64","e8f7",2,900],
+ ["2B5/3Q4/8/6k1/8/5P2/4N1NP/2K4R w - - 9 58","d7g7",2,900],
+ ["8/8/6Q1/3kpp2/1R6/P2bB1PP/5P2/3K1nN1 w - - 8 32","g6f7",2,900],
+ ["4Q3/7k/8/8/3Bb3/P5PP/5P1n/2K3N1 w - - 29 52","e8f7",2,900],
+ ["7Q/8/6k1/8/3B1P2/P5PP/7n/2K3N1 w - - 1 57","h8f6",2,900],
+ ["7Q/8/6k1/8/3B1P2/P5nP/8/2K3N1 w - - 2 62","h8f6",2,900],
+ ["8/3Q4/1k4BB/8/2P5/8/3PP2p/5K2 w - - 4 62","h6e3",2,900],
+ ["8/8/7R/3P2k1/3P4/7Q/4P3/6NK w - - 3 65","h3h4",2,900],
+ ["7r/1Q1b3p/8/5p2/1PP4P/8/P1q5/R1B1K1k1 b - - 0 31","c2f2",2,900],
+ ["8/2k5/8/4P3/8/2p1P3/P5B1/3QKR2 w - - 25 69","d1d6",2,900],
+ ["2b2k2/5p2/7r/3p2p1/8/6q1/4K3/8 b - - 5 66","h6h2",2,900],
+ ["8/5k1p/2pBp3/1p1p4/3P2p1/p1P5/P3PN2/RK5Q w - - 0 37","h1h7",2,900],
+ ["4k3/8/1P6/1N1Q2B1/4P3/6P1/P7/R4K2 w - - 5 49","d5e6",2,900],
+ ["B7/4kppp/Q7/K1p3P1/1r5P/8/P7/R2R4 w - - 1 32","a6d6",2,900],
+ ["4kr2/3r4/1Q3pp1/1B5p/8/p4K2/6PP/7R w - - 0 44","b6e6",2,900],
+ ["r7/4n1K1/P2k2p1/6q1/8/8/8/8 b - - 0 46","a8g8",2,900],
+ ["4B3/1k6/4Q3/8/1P3P2/2N1P2P/R1PP4/2B3KR w - - 15 48","e6c6",2,900],
+ ["8/5k2/8/R7/1P3P2/2NQP2P/2PP4/2B3KR w - - 0 57","d3h7",2,900],
+ ["1Q6/8/4k3/R2N4/1PPP1P2/4P2P/8/2B3KR w - - 1 63","b8e8",2,900],
+ ["rn1k4/pb3p2/2p5/p5p1/8/3q4/8/6K1 b - - 1 45","d3g3",2,900],
+ ["5n1k/8/8/6Q1/8/P7/8/2BK3B w - - 1 45","c1b2",2,900],
+ ["4b1N1/pr1k4/2p5/8/3P1P1P/1P2PQ2/P2K2P1/2R2R2 w - - 3 38","f3c6",2,900],
+ ["4rb1r/p2k1ppp/P7/4p2n/8/8/4qR1K/8 b - - 1 34","e2f2",2,900],
+ ["3r3r/pq1k1ppp/8/2b1p3/5n2/6K1/8/8 b - - 13 44","b7g2",2,900],
+ ["8/r1p5/8/6k1/6p1/2r4b/7K/b7 b - - 3 49","a7a2",2,900],
+ ["6k1/3q4/3p1Q2/3P3p/1P1P4/5Q2/4PP1R/1N3KN1 w - - 0 37","f6f8",2,910],
+ ["8/4Q3/6k1/3P4/3P3R/8/4PPK1/4q1N1 w - - 8 58","h4g4",2,910],
+ ["8/5k1p/2p1p3/1p1p1p2/p2P2P1/B1P5/P3PN2/RK5Q w - - 4 35","h1h7",2,910],
+ ["8/5k1p/2p1p3/1p1p1p2/1B1P2P1/p1P5/P3PN2/RK5Q w - - 0 36","h1h7",2,910],
+ ["2b2bnr/5k1p/n2pp2p/7P/5qp1/r7/4K3/8 b - - 5 33","f4h2",2,910],
+ ["8/k7/6R1/4K3/r7/P6P/3N2B1/1RB5 w - - 6 59","b1b7",2,910],
+ ["8/Q2n4/6N1/1k6/7P/1BP1bPP1/R3P3/1N3R1K w - - 1 36","a7a6",2,910],
+ ["4Q3/4R3/2N5/1P4k1/8/5p2/3P1P2/2B1K3 w - - 8 43","e7g7",2,910],
+ ["4Q3/2R5/8/1P4k1/8/3P1p2/1BN2P2/4K3 w - - 5 48","c7g7",2,910],
+ ["Q5nr/3k4/7p/8/R4PPP/4B2K/1PP1N2R/1N6 w - - 7 40","a8b7",2,920],
+ ["r1bk2r1/3p1p2/1p1R4/8/2q4p/8/3K4/8 b - - 1 34","a8a2",2,920],
+ ["r1bk4/3p1p2/1p6/4q3/7p/3R1K2/6r1/8 b - - 7 37","c8b7",2,920],
+ ["r1bk4/3p1p2/1p6/8/5K1p/3R4/4q1r1/8 b - - 9 38","g2g4",2,920],
+ ["2b2bnr/5k1p/n2pp2p/7P/6p1/Pr6/2K5/q7 b - - 1 29","a1a2",2,920],
+ ["k4r2/4Q3/6R1/8/3K1P2/7P/P2N4/R1B2B2 w - - 1 51","f1g2",2,920],
+ ["rn2k2r/4p3/2pP1n2/p7/2B1P3/P5K1/6P1/2b4q b - - 0 34","h1e1",2,920],
+ ["rnb4r/1p1pk2p/8/4p1Nn/8/2P4P/1P2q3/1K4R1 b - - 4 37","e2d3",2,930],
+ ["B1b5/2p1k2r/3pp3/Q7/1PPbP2p/P4K1P/1q6/8 b - - 2 33","b2f2",2,930],
+ ["8/3k4/1Q6/R2N4/1PPP1P2/4P2P/8/2B3KR w - - 3 64","a5a7",2,930],
+ ["8/4k3/1Q3N2/R7/1PPP1P2/4P2P/5K2/2B4R w - - 11 68","a5a7",2,930],
+ ["rnb5/p3kp2/1pp5/6p1/PP6/5qr1/R1KP4/1N6 b - - 1 31","f3b3",2,930],
+ ["4B1r1/2N5/1k3p1n/6p1/1BP4p/8/3PP3/1Q3K2 w - - 2 51","b4d6",2,940],
+ ["5B2/8/2p1p3/1p1p3p/3P3k/2P2R1N/P2KP3/8 w - - 6 49","f8e7",2,940],
+ ["5B2/8/2p1p3/1p1p3p/3P3k/2P2R1N/PK2P3/8 w - - 10 51","f8e7",2,940],
+ ["k7/4Q3/8/8/BP3P2/2N1P2P/R1PP4/2B3KR w - - 11 46","a4c6",2,940],
+ ["8/R5p1/4p2p/1k2n1P1/3Q2P1/6R1/2P1NP2/2B1K3 w - - 9 35","g3b3",2,950],
+ ["N5nr/B5p1/5p2/7p/1k5P/1b1R4/2PPPKBq/1Q6 w - - 0 33","d3b3",2,950],
+ ["r5nr/6p1/b6k/7q/7P/R1PnKp2/3P4/1N2R3 b - - 1 33","a8e8",2,960],
+ ["6nr/Q7/6kp/p7/R4PPP/4B2K/1PP1N2R/1N6 w - - 1 36","f4f5",2,970],
+ ["8/4Q3/7R/3P4/3P1k2/8/4P1K1/4q1N1 w - - 0 60","g1h3",2,970],
+ ["6r1/4pp2/3p3n/1bn5/p4k2/8/5K2/8 b - - 16 55","c5e4",2,980],
+ ["3k4/NQ6/8/8/P1P5/P3P2N/4KP1P/4b2R w - - 5 43","a7c6",2,1000],
+ ["8/R7/4p2k/2p1P3/4P2N/1P1B1K2/PP3N2/7R w - - 3 40","h4f5",2,1010],
+ ["r3k2r/p3n1Kp/2n1Q1p1/6P1/3PN3/P3q2P/8/8 w - - 0 32","e4f6",2,1030],
+ ["5Qnr/p3p2p/3pk1p1/1P4P1/R7/8/3PNP2/2B1K3 w - - 1 25","e2f4",2,1040],
+ ["5Qn1/7r/2p3k1/B6p/P1NP3p/5P1P/R1P3P1/4K2R w K - 1 34","c4e5",2,1050],
+ ["5q2/8/2rk2p1/3n4/7K/8/8/8 b - - 25 59","f8f3",2,1050],
+ ["2b2k2/5p2/7r/3pq1p1/8/3K4/8/8 b - - 7 67","e5b2",2,1070],
+ ["8/8/7k/3R2p1/8/2P2QP1/P3K3/8 w - - 12 59","f3f7",2,1070],
+ ["2B5/8/6k1/8/5Q2/5PN1/6NP/2K4R w - - 17 62","f4f8",2,1080],
+ ["2B5/8/7k/5Q2/8/5PN1/6NP/2K4R w - - 19 63","f5f7",2,1080],
+ ["6k1/8/5Q2/5B2/8/5PN1/6NP/2K4R w - - 23 65","f6e7",2,1080],
+ ["8/8/4k1B1/6Q1/8/5PN1/6NP/2K4R w - - 27 67","g5d8",2,1080],
+ ["8/8/2Q5/p4p1k/P7/1K5P/4N3/5B2 w - - 1 51","c6f6",2,1080],
+ ["1k6/8/8/4PQ2/8/2p1P3/P5B1/4K1R1 w - - 1 57","f5d7",2,1080],
+ ["8/4Q3/k7/4P3/8/2p1P3/P5B1/4KR2 w - - 19 66","e7c5",2,1080],
+ ["7Q/8/8/6k1/3B4/P5PP/5P1n/2K3N1 w - - 7 56","h8h7",2,1090],
+ ["8/7k/1P5B/1N1Q4/4P3/6P1/P7/R4K2 w - - 11 52","d5g5",2,1090],
+ ["8/8/2rk4/5qpK/8/2n5/8/8 b - - 1 64","c6c7",2,1090],
+ ["8/3R4/k7/8/8/1K5p/5B1P/8 w - - 3 64","b3c4",2,1090],
+ ["k7/8/8/K7/7P/N1P3R1/P7/8 w - - 1 67","a5b6",2,1100],
+ ["k7/6R1/8/K7/7P/2P5/P1N5/8 w - - 7 70","a5b6",2,1100],
+ ["8/8/8/8/PPP3KP/8/3R4/7k w - - 21 70","g4g3",2,1100],
+ ["6k1/8/8/7Q/8/2PR2P1/P3K3/8 w - - 3 67","d3d7",2,1100],
+ ["rn4n1/4k2r/2p5/p2qP3/P7/8/3b4/3K4 b - - 0 41","d5d3",2,1100],
+ ["rn4n1/4k1r1/2p1q3/p5b1/P2K4/8/8/8 b - - 5 45","e6b3",2,1100],
+ ["8/1R6/2N3p1/1P1Q2P1/7k/8/3P1P2/2B1K3 w - - 1 35","d5g2",2,1100],
+ ["2kN1Q2/8/8/8/P1P5/P3P2N/2K2P1P/4R3 w - - 21 54","f8e7",2,1100],
+ ["2kN4/8/8/4Q3/P1P5/P3P2N/2K2P1P/5R2 w - - 29 58","e5e7",2,1100],
+ ["6N1/8/6k1/8/2QP1P1P/1P2PP2/P2K4/2R5 w - - 1 46","c4c7",2,1100],
+ ["b2k4/3p4/1p3K2/2r5/7p/3r4/8/8 b - - 4 56","d3g3",2,1110],
+ ["b2k3K/3p4/1p6/2r5/7p/8/5r2/8 b - - 12 60","f2g2",2,1110],
+ ["3k4/3p1r2/1p3r2/3b3K/7p/8/8/8 b - - 30 69","f7g7",2,1110],
+ ["7k/6R1/K4P2/P7/1P1B4/4p3/8/8 w - - 6 70","f6f7",2,1110],
+ ["1n1k2n1/3r4/2p5/p7/1r6/8/8/K7 b - - 16 69","d7b7",2,1110],
+ ["3k4/1b1p1p2/1p5K/r7/4r2p/8/8/8 b - - 24 52","e4g4",2,1120],
+ ["6k1/7r/7n/5p1p/5P2/5n1P/8/7K b - - 3 52","h7g7",2,1120],
+ ["8/1Q6/8/k3P3/8/2p1P3/P5B1/4K1R1 w - - 7 60","g2c6",2,1120],
+ ["8/1k6/8/8/BP3P1Q/4P3/2PP1K1P/RNB4R w - - 15 39","h4d8",2,1120],
+ ["8/1k3B2/8/3N4/1P2QP2/4P2P/R1PP4/2B3KR w - - 25 53","e4c4",2,1120],
+ ["4R3/n7/6k1/8/P2NN3/8/1KB2P2/7R w - - 5 59","c2b3",2,1130],
+ ["4b1K1/8/4n1p1/6k1/7r/2P2p2/6n1/1N6 b - - 13 57","g5f6",2,1130],
+ ["r3k3/4n2K/6p1/P5P1/2N5/7P/7q/8 b - - 5 41","e8f8",2,1130],
+ ["8/1R4P1/2N5/1P5k/5p2/8/3P1P2/2B1K3 w - - 0 38","g7g8q",2,1130],
+ ["2r5/4pp2/n2p3n/8/p2b1k2/5b2/8/4K1R1 b - - 11 45","f4e3",2,1140],
+ ["1n5Q/4k3/1p6/4Pp2/8/2p1P3/P5B1/4K1R1 w - - 1 49","g2d5",2,1140],
+ ["8/3r4/3kpp2/1p5p/3Pp1p1/8/5q2/3K4 b - - 5 50","d7a7",2,1140],
+ ["3k1r2/8/4Qpp1/7p/8/p4K2/6PP/6R1 w - - 4 47","g1c1",2,1140],
+ ["5r2/k7/5pp1/7p/4Q3/p4K2/6PP/4R3 w - - 12 51","e1b1",2,1140],
+ ["4R3/k2N4/8/7P/B7/2P2PP1/4P3/1N1R3K w - - 15 53","a4c6",2,1140],
+ ["rn1k4/pb6/2p2p2/p5p1/4q3/7K/8/8 b - - 3 47","c6c5",2,1140],
+ ["rnbk4/p7/2p2p2/p5p1/8/8/4q3/6K1 b - - 7 49","c8h3",2,1140],
+ ["8/1R2Q3/3p2p1/1P3kP1/8/8/3PNP2/2B1K3 w - - 1 31","f2f3",2,1140],
+ ["4k3/NQ6/8/8/P1P5/P3P2N/4KP1P/4R3 w - - 1 44","e1d1",2,1140],
+ ["q3r2r/p2k1ppp/8/2b1p2n/8/8/7K/8 b - - 7 41","f7f5",2,1140],
+ ["4k3/8/8/8/2QB1PPP/7K/1PPRN2R/1N6 w - - 11 56","d4f6",2,1150],
+ ["4B1r1/8/k4p1n/3N2p1/1BP4p/8/3PP3/1Q3K2 w - - 4 52","b4c5",2,1160],
+ ["8/R7/4p3/2p1P2k/4P2N/1P1B4/PP2KN2/7R w - - 1 39","a7g7",2,1160],
+ ["6nr/4bk1p/3pp2p/2n4P/4b3/2r3pK/8/8 b - - 17 43","e7g5",2,1160],
+ ["8/7Q/1k6/8/BP3P2/4P3/2PP1K1P/RNB4R w - - 13 38","h1g1",2,1160],
+ ["8/1k6/8/2Q5/BP3P2/4P2P/2PP1K2/RNB4R w - - 3 42","a4d7",2,1160],
+ ["1k6/8/8/2Q5/BP3P2/2N1P2P/R1PP1K2/2B4R w - - 7 44","a4d7",2,1160],
+ ["8/1k6/8/2Q5/BP3P2/2N1P2P/R1PP4/2B3KR w - - 9 45","a4d7",2,1160],
+ ["2b2bnr/5k1p/n2pp2p/7P/6p1/Prq5/8/3K4 b - - 3 30","b3b2",2,1180],
+ ["1n2kb1r/4pp2/3p3n/1p6/1P1P4/2N2b2/RP5q/4K3 b k - 1 27","h8g8",2,1190],
+ ["2b2bnr/5k1p/n2pp2p/7P/2q3p1/Pr6/8/R2K4 b - - 1 27","b3b2",2,1190],
+ ["2b2bnr/5k1p/n2pp2p/7P/3q2p1/Pr6/8/R1K5 b - - 3 28","b3b2",2,1190]
+];
+const PUZZLES_T = [
+ ["4k3/8/8/3q4/8/8/8/3RK3 w - - 0 1", ["d1d5"], 0, 560, "Capture a dama preta."],
+ ["4k3/8/8/2n5/8/4B3/8/4K3 w - - 0 1", ["e3c5"], 0, 580, "Capture o cavalo sem defesa."],
+ ["4k3/8/8/8/4r3/8/3N4/6K1 w - - 0 1", ["d2e4"], 0, 600, "Capture a torre preta."],
+ ["4k3/8/8/3b4/4P3/8/8/4K3 w - - 0 1", ["e4d5"], 0, 620, "Use o peão para capturar o bispo."],
+ ["4k3/8/8/8/8/2q5/8/Q6K w - - 0 1", ["a1c3"], 0, 560, "Troque damas: capture a dama preta."],
+ ["4k3/8/8/8/8/8/3n4/R3K3 w - - 0 1", ["e1d2"], 0, 580, "O cavalo preto chegou perto do seu rei. Capture-o com o rei."],
+ ["4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1", ["e5d6"], 0, 600, "O peão preto acabou de andar de d7 para d5, parando ao lado do seu. Capture-o en passant: seu peão vai para d6."],
+ ["4k3/8/8/8/2Pp4/8/8/4K3 b - c3 0 1", ["d4c3"], 0, 620, "Você joga de pretas. O peão branco acabou de andar de c2 para c4. Capture-o en passant."],
+ ["r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1", ["b5c7"], 0, 720, "Garfo de cavalo: ataque o rei e a torre ao mesmo tempo."],
+ ["4k3/8/2n1b3/8/2PP4/8/8/4K3 w - - 0 1", ["d4d5"], 0, 740, "Garfo de peão: ataque o cavalo e o bispo ao mesmo tempo."],
+ ["6k1/8/8/r7/8/8/8/3Q2K1 w - - 0 1", ["d1d5"], 0, 760, "Dê xeque com a dama e ataque a torre no mesmo lance."],
+ ["8/7q/8/5k2/8/8/8/KB6 w - - 0 1", ["b1c2", "b1d3"], 0, 780, "Espeto: dê xeque com o bispo para ganhar a dama atrás do rei."],
+ ["3q3k/8/8/4N3/8/8/8/4K3 w - - 0 1", ["e5f7"], 0, 720, "Garfo de cavalo: dê xeque e ataque a dama no mesmo lance."]
+];
+const PZ = [...PUZZLES, ...PUZZLES_T].map((p, i) => ({id:i, fen:p[0], sol:[].concat(p[1]), n:p[2], r:p[3], tip:p[4]}));
+const PZ_MODES = ['', 'Mate em 1', 'Mate em 2'];
+let Z = null;
+const pzStats = () => S.pz || (S.pz = {rating:600, best:600, solved:0, failed:0, streak:0, bestStreak:0, rush:0, seen:[]});
+const uci = m => m.from + m.to + (m.promotion || '');
+const pzMateMove = g => g.moves({verbose:true}).find(m => { g.move(m); const ok = g.in_checkmate(); g.undo(); return ok; });
+
+function pzCard(){
+  const s = pzStats();
+  return `<div class="play pzcard">
+    <div class="play-head">${mascot('think', 56, true)}<div><h3>Quebra-cabeças</h3>
+      <p>${s.solved + s.failed ? `Você já resolveu ${s.solved}. Melhor sequência: ${s.bestStreak}.` : 'Encontre o melhor lance. O rating sobe quando você acerta.'}</p></div></div>
+    <div class="pzrow"><div class="pzbox"><b>${s.rating}</b><span>Seu rating</span></div><div class="pzbox"><b>${s.streak}</b><span>Sequência</span></div><div class="pzbox"><b>${s.rush}</b><span>Recorde relâmpago</span></div></div>
+    <div class="row"><button class="btn" id="pzgo">Treinar</button><button class="btn ghost" id="pzrush">Relâmpago · 3 min</button></div>
+  </div>`;
+}
+function bindPzCard(body){
+  const a = body.querySelector('#pzgo'), b = body.querySelector('#pzrush');
+  if (a) a.onclick = () => pzStart('rating');
+  if (b) b.onclick = () => pzStart('rush');
+}
+function pzPick(){
+  const s = pzStats(), want = Z.mode === 'rush' ? 400 + Z.score * 70 : s.rating;
+  let pool = PZ.filter(p => !s.seen.includes(p.id) && (Z.mode !== 'rush' || !Z.usedRush.includes(p.id)));
+  if (!pool.length){ s.seen = []; pool = PZ.filter(p => Z.mode !== 'rush' || !Z.usedRush.includes(p.id)); }
+  if (!pool.length) pool = PZ.slice();
+  pool.sort((a, b) => Math.abs(a.r - want) - Math.abs(b.r - want));
+  const near = pool.slice(0, 8);
+  return near[Math.floor(Math.random() * near.length)];
+}
+function pzStart(mode){
+  L = null; G = null; T = null; F = null;
+  Z = {mode, score:0, strikes:0, usedRush:[], endsAt:mode === 'rush' ? Date.now() + 180000 : 0, tm:null, nt:null, over:false};
+  pzRender(); pzNext();
+  if (mode === 'rush') Z.tm = setInterval(pzTick, 250);
+}
+function pzRender(){
+  const s = pzStats();
+  app.innerHTML = `<div class="lesson game">
+    <div class="lhead"><button class="x" id="pzquit" aria-label="Sair dos quebra-cabeças">${I.x}</button><div class="gtitle">${Z.mode === 'rush' ? 'Relâmpago' : 'Quebra-cabeças'}</div>
+      <div class="pzpill" title="${Z.mode === 'rush' ? 'Tempo' : 'Seu rating'}">${Z.mode === 'rush' ? '<span id="pztime">3:00</span>' : `<b id="pzrate">${s.rating}</b><i id="pzdelta"></i>`}</div></div>
+    <div class="stage">
+      <div class="pzmeta"><span id="pzkind"></span><span id="pzinfo"></span></div>
+      <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="Tabuleiro"></div><span class="turn" id="turn"></span></div>
+      <div class="prompt"><span id="pzm"></span><div class="bubble q" id="pzsay" aria-live="polite"></div></div>
+      <div class="row gbtns" id="pzbtns"></div>
+    </div></div>`;
+  app.querySelector('#pzquit').onclick = pzQuit;
+}
+function pzQuit(){ if (Z){ clearInterval(Z.tm); clearTimeout(Z.nt); } Z = null; home(); }
+function pzNext(){
+  clearTimeout(Z.nt);
+  const p = pzPick(); if (Z.mode === 'rush') Z.usedRush.push(p.id);
+  const g = new Chess(p.fen);
+  Object.assign(Z, {p, g, me:g.turn(), from:null, last:null, hint:null, state:'play', step:0, hinted:false, mood:'think', animate:null, bkey:null, shownMood:null,
+    say: p.tip || (p.n === 0 ? 'Qual é o melhor lance?' : `Mate em ${p.n}. Encontre o lance.`)});
+  pzDraw();
+}
+function pzTick(){
+  if (!Z || Z.over) return;
+  const left = Z.endsAt - Date.now();
+  if (left <= 0) return pzRushEnd('Acabou o tempo!');
+  const el = app.querySelector('#pztime'), sec = Math.ceil(left / 1000);
+  if (el) el.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+}
+function pzDraw(){
+  const el = app.querySelector('#board'); if (!el || !Z || !Z.g) return;
+  const g = Z.g, flip = Z.me === 'b', files = 'abcdefgh', board = g.board();
+  const targets = Z.from ? g.moves({square:Z.from, verbose:true}) : [];
+  let checkSq = null;
+  if (g.in_check()) for (let r = 0; r < 8; r++) for (let f = 0; f < 8; f++){ const p = board[r][f]; if (p && p.type === 'k' && p.color === g.turn()) checkSq = files[f] + (8-r); }
+  let html = '';
+  for (let rr = 0; rr < 8; rr++) for (let ff = 0; ff < 8; ff++){
+    const r = flip ? 7-rr : rr, f = flip ? 7-ff : ff, sq = files[f] + (8-r), p = board[r][f], t = targets.find(m => m.to === sq);
+    const cls = ['sq', (r+f)%2 ? 'd' : '', Z.from===sq ? 'sel' : '', Z.last && (Z.last.from===sq || Z.last.to===sq) ? 'last' : '', Z.hint===sq ? 'hint' : '', checkSq===sq ? 'chk' : '', t ? 'tgt' : '', t && t.captured ? 'cap' : ''].join(' ');
+    html += `<button class="${cls}" data-sq="${sq}" aria-label="${sq}${p ? ' ' + (p.color==='w'?'branca':'preta') : ''}">${p ? `<span class="pc ${p.color}">${PIECE[p.type]}︎</span>` : ''}${rr===7 ? `<span class="cf">${files[f]}</span>` : ''}${ff===0 ? `<span class="cr">${8-r}</span>` : ''}</button>`;
+  }
+  el.innerHTML = html;
+  el.querySelectorAll('[data-sq]').forEach(b => b.onclick = () => pzTap(b.dataset.sq));
+  if (Z.animate){ animateMove(el, Z.animate); Z.animate = null; }
+  app.querySelector('#pzkind').textContent = Z.mode === 'rush' ? `Acertos: ${Z.score}  ·  Erros: ${Z.strikes}/3` : (PZ_MODES[Z.p.n] || 'Lance tático');
+  app.querySelector('#pzinfo').textContent = Z.mode === 'rush' ? '' : `Problema ${Z.p.r}`;
+  app.querySelector('#turn').textContent = Z.state === 'play' ? `Sua vez · você joga de ${Z.me === 'w' ? 'brancas' : 'pretas'}` : Z.state === 'bot' ? 'Vez do adversário' : '';
+  if (Z.shownMood !== Z.mood){ app.querySelector('#pzm').innerHTML = mascot(Z.mood, 64); Z.shownMood = Z.mood; }
+  app.querySelector('#pzsay').textContent = Z.say;
+  const bt = app.querySelector('#pzbtns'), key = Z.state + '|' + Z.mode;
+  if (Z.bkey !== key){
+    Z.bkey = key;
+    if (Z.state === 'play' || Z.state === 'bot') bt.innerHTML = Z.mode === 'rush' ? '<button class="btn ghost" id="pzhint">Dica</button>' : '<button class="btn ghost" id="pzhint">Dica</button><button class="btn ghost" id="pzshow">Ver solução</button>';
+    else if (Z.mode === 'rush') bt.innerHTML = '';
+    else bt.innerHTML = '<button class="btn" id="pznext">Próximo</button>';
+    const h = bt.querySelector('#pzhint'); if (h) h.onclick = pzHint;
+    const sh = bt.querySelector('#pzshow'); if (sh) sh.onclick = () => { if (Z.state === 'play') pzFail('Sem problema.'); };
+    const nx = bt.querySelector('#pznext'); if (nx) nx.onclick = pzNext;
+  }
+}
+function pzHint(){
+  if (!Z || Z.state !== 'play') return;
+  const g = Z.g, p = Z.p;
+  let from;
+  if (p.n === 1 || (p.n === 2 && Z.step === 1)){ const m = pzMateMove(g); from = m && m.from; }
+  else from = p.sol[0].slice(0, 2);
+  Z.hint = from; Z.hinted = true; Z.say = 'Olhe para a peça marcada.'; pzDraw();
+}
+function pzTap(sq){
+  if (!Z || Z.state !== 'play') return;
+  const g = Z.g;
+  if (Z.from){
+    const ok = g.moves({square:Z.from, verbose:true}).find(m => m.to === sq);
+    if (ok){ pzMove(g.move({from:Z.from, to:sq, promotion:'q'})); return; }
+  }
+  const p = g.get(sq);
+  Z.from = p && p.color === Z.me && Z.from !== sq ? sq : null;
+  pzDraw();
+}
+function pzMove(mv){
+  const p = Z.p, g = Z.g; Z.from = null; Z.hint = null; Z.last = mv; Z.animate = mv; chime(true);
+  let right;
+  if (p.n === 1) right = g.in_checkmate();
+  else if (p.n === 2) right = Z.step === 0 ? p.sol.includes(uci(mv)) : g.in_checkmate();
+  else right = p.sol.includes(uci(mv));
+  if (!right){ g.undo(); Z.animate = null; Z.last = null; return pzFail(p.n === 0 ? 'Esse não é o melhor lance.' : 'Esse lance não leva ao mate.'); }
+  if (p.n !== 2 || Z.step === 1) return pzSolved();
+  Z.step = 1; Z.state = 'bot'; Z.mood = 'happy'; Z.say = 'Boa! Agora o adversário responde.'; pzDraw();
+  const z = Z;
+  setTimeout(() => {
+    if (Z !== z) return;
+    const rs = g.moves({verbose:true}), mv2 = g.move(rs[Math.floor(Math.random() * rs.length)]);
+    z.last = mv2; z.animate = mv2; z.state = 'play'; z.mood = 'think'; z.say = 'Agora dê o xeque-mate.'; pzDraw();
+  }, MOVE_MS + 450);
+}
+function pzElo(won, pr){
+  const s = pzStats(), K = s.solved + s.failed < 15 ? 48 : 28, exp = 1 / (1 + Math.pow(10, (pr - s.rating) / 400));
+  return Math.round(K * ((won ? 1 : 0) - exp));
+}
+function pzSolved(){
+  const s = pzStats(), z = Z, clean = !Z.hinted;
+  Z.state = 'right'; Z.mood = 'cheer';
+  if (Z.mode === 'rush'){
+    Z.score++; Z.say = 'Certo!'; pzDraw();
+    Z.nt = setTimeout(() => { if (Z === z && !z.over) pzNext(); }, 650); return;
+  }
+  s.seen.push(Z.p.id); s.seen = s.seen.slice(-60); s.solved++;
+  let d = 0;
+  if (clean){ d = Math.max(1, pzElo(true, Z.p.r)); s.rating += d; s.best = Math.max(s.best, s.rating); s.streak++; s.bestStreak = Math.max(s.bestStreak, s.streak); awardXp(2); }
+  else s.streak = 0;
+  save();
+  Z.say = clean ? `Isso! +${d} de rating e +2 XP.` : 'Resolvido com dica, então o rating não muda.';
+  pzDraw(); pzRating(d);
+}
+function pzFail(msg){
+  const s = pzStats(), z = Z, g = Z.g;
+  Z.hint = null; Z.from = null; Z.state = 'wrong'; Z.mood = 'sad';
+  let say = '', sol;
+  if (Z.p.n === 1 || (Z.p.n === 2 && Z.step === 1)) sol = pzMateMove(g);
+  else sol = g.moves({verbose:true}).find(m => Z.p.sol.includes(uci(m)));
+  if (sol){ const mv = g.move(sol); Z.last = mv; Z.animate = mv; say = `A resposta era ${sanPt(mv.san)}.`; }
+  if (Z.mode === 'rush'){
+    Z.strikes++; Z.say = msg + ' ' + say; pzDraw();
+    Z.nt = setTimeout(() => { if (Z !== z || z.over) return; if (z.strikes >= 3) pzRushEnd('Três erros.'); else pzNext(); }, 1500); return;
+  }
+  s.seen.push(Z.p.id); s.seen = s.seen.slice(-60); s.failed++; s.streak = 0;
+  const d = pzElo(false, Z.p.r); s.rating = Math.max(100, s.rating + d); save();
+  Z.say = `${msg} ${say} ${d} de rating.`;
+  pzDraw(); pzRating(d);
+}
+function pzRating(d){
+  const r = app.querySelector('#pzrate'), dl = app.querySelector('#pzdelta');
+  if (r) r.textContent = pzStats().rating;
+  if (dl){ dl.textContent = d > 0 ? '+' + d : d < 0 ? String(d) : ''; dl.className = d > 0 ? 'up' : 'down'; }
+}
+function pzRushEnd(why){
+  const s = pzStats(); clearInterval(Z.tm); clearTimeout(Z.nt); Z.over = true; Z.state = 'over';
+  const rec = Z.score > s.rush; if (rec) s.rush = Z.score;
+  const xp = Math.min(Z.score, 15); if (xp) awardXp(xp); save();
+  chime(Z.score > 0);
+  const tp = app.querySelector('#pztime'); if (tp) tp.textContent = '0:00';
+  app.querySelector('.stage').innerHTML = `<div class="pzend"><div class="burst">${Z.score}</div>
+    <h2>${why}</h2><p>${Z.score === 1 ? '1 acerto' : Z.score + ' acertos'}${rec ? ' · novo recorde!' : ` · recorde: ${s.rush}`}${xp ? ` · +${xp} XP` : ''}</p>
+    <div class="row gbtns"><button class="btn" id="pzagain">Jogar de novo</button><button class="btn ghost" id="pzback">Voltar</button></div></div>`;
+  app.querySelector('#pzagain').onclick = () => pzStart('rush');
+  app.querySelector('#pzback').onclick = pzQuit;
+}
+
 document.addEventListener('keydown', e => {
   if (!L || e.key !== 'Enter' || e.target.tagName === 'TEXTAREA') return;
   const go = document.getElementById('go'); if (go && !go.disabled && document.activeElement !== go){ e.preventDefault(); go.click(); }
 });
-if (hasTTS) try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => { if (!L) home(); }; } catch(e) {}
+if (hasTTS) try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => { if (!L && !G && !Z) home(); }; } catch(e) {}
 home();
 </script>
 
