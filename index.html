@@ -158,8 +158,6 @@ select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--lin
 .x svg{width:22px;height:22px;display:block}
 .lhead .bar{flex:1;height:16px}
 .lhead .bar i{background:var(--ok)}
-.hearts{display:flex;align-items:center;gap:4px;font-weight:700;color:var(--bad);font-variant-numeric:tabular-nums}
-.hearts svg{width:22px;height:22px}
 .stage{flex:1;display:flex;flex-direction:column;gap:18px;padding-block:8px 24px}
 .stage h2{font-size:24px}
 .prompt{display:flex;gap:12px;align-items:flex-start}
@@ -260,7 +258,7 @@ select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--lin
 /* chess */
 .board-wrap{display:grid;gap:10px;justify-items:center}
 .board{--bw:min(calc(100vw - 32px),420px);width:var(--bw);max-width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));border-radius:8px;overflow:hidden;box-shadow:0 0 0 3px var(--sq-dark);container-type:inline-size;position:relative}
-.board .pc-fly{position:absolute;z-index:5;display:flex;align-items:center;justify-content:center;line-height:1;pointer-events:none;transition:transform 280ms cubic-bezier(.22,.8,.3,1);will-change:transform;font-family:"Segoe UI Symbol","DejaVu Sans","Noto Sans Symbols 2",serif}
+.board .pc-fly{position:absolute;z-index:5;display:flex;align-items:center;justify-content:center;line-height:1;pointer-events:none;transition:transform 280ms cubic-bezier(.22,.8,.3,1);will-change:transform}
 .sq.hit .pc{animation:hit 360ms ease-out}
 .board .pc-gone{transition:none;animation:gone 1.2s ease-in forwards}
 @keyframes gone{0%,35%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.6)}}
@@ -272,9 +270,16 @@ select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--lin
 .sq.last{background:var(--sq-move)}
 .sq.tgt::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(30,30,28,.35)}
 .sq.tgt.cap::after{width:86%;height:86%;background:none;border:4px solid rgba(30,30,28,.35);box-sizing:border-box}
-.sq .pc{position:relative;z-index:1;display:block;height:1em;line-height:1;font-family:"Segoe UI Symbol","DejaVu Sans","Noto Sans Symbols 2",serif}
-.pc.w{color:#FBFAF5;-webkit-text-stroke:1.4px #23211E;text-shadow:0 2px 0 rgba(0,0,0,.25)}
-.pc.b{color:#211F1C;-webkit-text-stroke:.6px #000}
+.sq .pc{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.pc svg,.pc-drag svg{width:96%;height:96%;display:block;filter:drop-shadow(0 1.5px 0 rgba(0,0,0,.2))}
+.pc-drag{display:flex;align-items:center;justify-content:center}
+.pc-drag svg{filter:drop-shadow(0 6px 5px rgba(0,0,0,.3))}
+.board{touch-action:none}
+.cap{display:flex;align-items:center;gap:0;min-height:22px;width:var(--bw,100%);max-width:100%;flex-wrap:wrap}
+.cap .cp{display:block;width:20px;height:20px;margin-right:-6px}.cap .cp svg{width:100%;height:100%;display:block}
+.cap .cd{margin-left:12px;font:700 13px var(--body);color:var(--muted)}
+.sq .mk{position:absolute;right:3%;top:3%;width:36%;height:36%;border-radius:50%;display:grid;place-items:center;z-index:3;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sq .mk svg{width:62%;height:62%}.mk.ok{background:#3E9B5F}.mk.bad{background:#D4483D}
 .sq .cf,.sq .cr{position:absolute;font:700 10px/1 var(--body);color:#3E2E1C;opacity:.75}
 .sq .cf{right:3px;bottom:2px} .sq .cr{left:3px;top:3px}
 .turn{font-weight:700;color:var(--muted);font-size:14px}
@@ -1139,13 +1144,53 @@ function chime(ok){
 const I = {
   flame:'<svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z"/></svg>',
   bolt:'<svg viewBox="0 0 24 24" fill="var(--primary)"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
-  heart:'<svg viewBox="0 0 24 24" fill="var(--bad)"><path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-3 4.5 4.5 0 0 1 8 3c0 6-8 11-8 11z"/></svg>',
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   spk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>',
   mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
   turtle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="11" cy="13" rx="6" ry="4.5"/><circle cx="19" cy="12" r="2"/><path d="M7 17l-1 2M15 17l1 2M5 13H3"/></svg>',
 };
 const PIECE = {k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+// Peças originais em SVG (45x45). Cada peça: silhueta (fill/stroke) + detalhes (linhas finas).
+const PIECE_SHAPES = {
+  p:{body:'M22.5 8.2a5.4 5.4 0 0 1 3.1 9.8c3.2 1.7 5.4 5.2 5.4 9.6 0 2.3-.5 4.4-1.4 6.4H15.4c-.9-2-1.4-4.1-1.4-6.4 0-4.4 2.2-7.900 5.4-9.600a5.400 5.400 0 0 1 3.100-9.800z', base:true, det:''},
+  r:{body:'M13.200 9.500h4.200v3h2.700v-3h4.800v3h2.700v-3h4.200v8.200l-3 2.600 1.100 12.200H15.100l1.100-12.200-3-2.600z', base:true, det:'M16.600 19.800h11.800'},
+  n:{body:'M14.500 34.200C14 29 16 25.500 19.500 23.200L14.200 24.600C11.600 24.200 10.400 22.200 10.800 20.400L17.800 11.600 18 6.600 21.200 9.200 23.500 6.300C31.500 9 34.500 17.500 33.500 25 33 28.500 32.700 31.500 32.500 34.200Z', base:true, det:'M26 12.500C29 17 29.500 22 28.500 27M19.200 14.200l.01 0M12.600 21.400l.01 0'},
+  b:{body:'M22.500 6.800C28.800 11.200 30 16.800 27.800 20.400 29.200 22.600 29.600 25.600 28.200 28.600L30 34.200H15L16.800 28.600C15.400 25.600 15.800 22.600 17.200 20.400 15 16.800 16.200 11.200 22.500 6.800Z', base:true, det:'M24.800 11.400L20.400 18.400M17.600 24.400h9.800', ball:[22.500,5.600,2.200]},
+  q:{body:'M12.200 14.600l4.500 11.800 2.400-13 3.400 11.700 3.400-11.700 2.400 13 4.500-11.800-1.900 19.600H14.100z', base:true, det:'M14.800 29.800h15.400', balls:[[12.200,12.600,2],[17.700,10.600,2],[22.500,9.600,2],[27.300,10.600,2],[32.800,12.600,2]]},
+  k:{body:'M22.500 14.300c5.600 0 9.700 3.300 9.700 8.100 0 2.700-1 5-2.600 6.400 1.100 1.700 1.600 3.700 1.600 5.400H13.800c0-1.700.5-3.700 1.600-5.400-1.600-1.400-2.600-3.700-2.600-6.400 0-4.800 4.100-8.100 9.700-8.100z', base:true, det:'M16.100 29.300h12.800', cross:true}
+};
+const BASE_PATH = 'M11.800 34.200h21.400a2.300 2.300 0 0 1 0 4.600H11.800a2.300 2.300 0 0 1 0-4.600z';
+function pieceSvg(t, c){
+  const d = PIECE_SHAPES[t], w = c === 'w';
+  const fill = w ? '#FBFAF5' : '#34312D', line = w ? '#2A2723' : '#0E0D0C', det = w ? '#2A2723' : '#D9D4C8';
+  let o = `<svg class="ps" viewBox="5 2 35 38" aria-hidden="true"><g stroke="${line}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" fill="${fill}">`;
+  if (d.cross) o += `<path d="M22.500 3.800v10.500M18.200 8.200h8.600" fill="none" stroke-width="2.600"/><path d="M22.500 3.800v10.500M18.200 8.200h8.600" fill="none" stroke="${fill}" stroke-width=".9"/>`;
+  o += `<path d="${d.body}"/><path d="${BASE_PATH}"/>`;
+  [d.ball, ...(d.balls || [])].filter(Boolean).forEach(b => o += `<circle cx="${b[0]}" cy="${b[1]}" r="${b[2]}"/>`);
+  o += `</g><path d="${d.det}" fill="none" stroke="${det}" stroke-width="1.300" stroke-linecap="round" opacity=".85"/></svg>`;
+  return o;
+}
+
+// Material e peças capturadas, a partir do tabuleiro atual
+const PV = {p:1, n:3, b:3, r:5, q:9}, PSTART = {p:8, n:2, b:2, r:2, q:1};
+function capInfo(g){
+  const cnt = {w:{p:0,n:0,b:0,r:0,q:0}, b:{p:0,n:0,b:0,r:0,q:0}};
+  g.board().forEach(row => row.forEach(p => { if (p && p.type !== 'k') cnt[p.color][p.type]++; }));
+  const lost = {w:[], b:[]}, mat = {w:0, b:0};
+  ['w','b'].forEach(c => 'qrbnp'.split('').forEach(t => {
+    mat[c] += cnt[c][t] * PV[t];
+    for (let i = 0; i < Math.max(0, PSTART[t] - cnt[c][t]); i++) lost[c].push(t);
+  }));
+  return {lost, diff:mat.w - mat.b};
+}
+function capRow(g, side, me){
+  // side = 'me' ou 'op'. Em cima ficam as peças que EU perdi; embaixo, as que EU capturei.
+  const {lost, diff} = capInfo(g), opp = me === 'w' ? 'b' : 'w';
+  const pcs = side === 'me' ? lost[opp] : lost[me];
+  const ahead = side === 'me' ? (me === 'w' ? diff : -diff) : (me === 'w' ? -diff : diff);
+  return pcs.map(t => `<span class="cp">${pieceSvg(t, side === 'me' ? opp : me)}</span>`).join('') + (ahead > 0 ? `<b class="cd">+${ahead}</b>` : '');
+}
+
 
 // ---------- Volipe, o mascote ----------
 // Baseado no logo do canal: rosto de macaco em nanquim, topete de três pontas e o terceiro olho.
@@ -1395,6 +1440,7 @@ function home(){
       <h2>Ajustes</h2>
       <label for="goal">Meta diária <select id="goal">${[10,20,30,50,80].map(v=>`<option value="${v}" ${S.goal==v?'selected':''}>${v} XP</option>`).join('')}</select></label>
       <label for="rate">Velocidade da voz <select id="rate"><option value="normal" ${S.rate==='normal'?'selected':''}>Normal</option><option value="slow" ${S.rate==='slow'?'selected':''}>Mais devagar</option></select></label>
+      <label for="bt">Tabuleiro <select id="bt">${Object.entries(BTHEMES).map(([k,v])=>`<option value="${k}" ${(S.boardTheme||'madeira')===k?'selected':''}>${v[0]}</option>`).join('')}</select></label>
       <label for="snd">Efeitos sonoros <input type="checkbox" id="snd" ${S.sound?'checked':''}></label>
       ${!hasTTS ? '<p class="note">Este navegador não tem leitura em voz alta, então os exercícios de ouvir ficam de fora.</p>'
         : missing.length ? `<p class="note">Este aparelho não tem voz instalada para ${missing.join(', ')}. Nesses cursos os exercícios de ouvir ficam de fora.</p>` : ''}
@@ -1410,6 +1456,7 @@ function home(){
     </div>`;
     body.querySelector('#goal').onchange = e => { S.goal = +e.target.value; save(); };
     body.querySelector('#rate').onchange = e => { S.rate = e.target.value; save(); };
+    body.querySelector('#bt').onchange = e => { S.boardTheme = e.target.value; save(); applyBT(); };
     body.querySelector('#snd').onchange = e => { S.sound = e.target.checked; save(); };
     const xfer = body.querySelector('#xfer'), xt = body.querySelector('#xt'), improw = body.querySelector('#improw');
     body.querySelector('#exp').onclick = () => {
@@ -1437,7 +1484,7 @@ function home(){
 
 function start(unit, queue){
   if (!queue.length){ home(); return; }
-  L = {c:course(), unit, queue, total:queue.length, pos:0, correct:0, hearts:5, wrongOnce:new Set(), firstTry:0, startedAt:Date.now(), state:'answer'};
+  L = {c:course(), unit, queue, total:queue.length, pos:0, correct:0, wrongOnce:new Set(), firstTry:0, startedAt:Date.now(), state:'answer'};
   renderEx();
 }
 
@@ -1500,8 +1547,7 @@ function renderEx(){
   body = body.replace('<div class="prompt">', `<div class="prompt">${mascot(ex.kind === 'type' || ex.kind === 'build' ? 'think' : 'idle', 64)}`);
   app.innerHTML = `<div class="lesson">
     <div class="lhead"><button class="x" id="quit" aria-label="Sair da lição">${I.x}</button>
-      <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
-      <div class="hearts" title="Vidas">${I.heart}${L.hearts}</div></div>
+      <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div></div>
     <div class="stage"><h2>${titles[ex.kind]}${ex.ai ? ' <span class="tag-h ai">Questão do Volipe</span>' : ex.ref && ex.ref.item && ex.ref.item.h ? ' <span class="tag-h">Nível Enem</span>' : ''}</h2>${body}</div>
     <div class="check" id="check">
       ${ex.kind==='listen' || ex.kind==='listenb' ? '<button class="skip" id="skip">Não posso ouvir agora</button>' : ''}
@@ -1585,12 +1631,13 @@ function drawBoard(ex){
     const cls = ['sq', (r+f)%2 ? 'd' : '', L.from===sq ? 'sel' : '', L.moved && (L.moved.from===sq || L.moved.to===sq) ? 'last' : '', t ? 'tgt' : '', t && t.captured ? 'cap' : ''].join(' ');
     const coordF = rr === 7 ? `<span class="cf">${files[f]}</span>` : '';
     const coordR = ff === 0 ? `<span class="cr">${8-r}</span>` : '';
-    html += `<button class="${cls}" data-sq="${sq}" aria-label="${sq}${p ? ' ' + (p.color==='w'?'branca':'preta') : ''}">${p ? `<span class="pc ${p.color}">${PIECE[p.type]}︎</span>` : ''}${coordF}${coordR}</button>`;
+    html += `<button class="${cls}" data-sq="${sq}" aria-label="${sq}${p ? ' ' + (p.color==='w'?'branca':'preta') : ''}">${p ? `<span class="pc ${p.color}">${pieceSvg(p.type, p.color)}</span>` : ''}${coordF}${coordR}</button>`;
   }
   el.innerHTML = html;
   app.querySelector('#turn').textContent = new Chess(ex.fen).turn() === 'w' ? 'Você joga de brancas' : 'Você joga de pretas';
   app.querySelector('#undo').hidden = !L.moved || L.state !== 'answer';
   el.querySelectorAll('[data-sq]').forEach(b => b.onclick = () => tapSquare(ex, b.dataset.sq));
+  attachDrag(el, sq => tapSquare(ex, sq), sq => { const p = L && L.state === 'answer' && L.game.get(sq); return !!p && p.color === L.game.turn(); });
 }
 function tapSquare(ex, sq){
   if (L.state !== 'answer') return;
@@ -1599,7 +1646,7 @@ function tapSquare(ex, sq){
   const p = g.get(sq);
   if (L.from){
     const m = g.moves({square:L.from, verbose:true}).find(m => m.to === sq);
-    if (m){ L.moved = g.move({from:L.from, to:sq, promotion:'q'}); L.from = null; app.querySelector('#go').disabled = false; drawBoard(ex); animateMove(app.querySelector('#board'), L.moved); return; }
+    if (m){ L.moved = g.move({from:L.from, to:sq, promotion:'q'}); moveSound(L.moved, g); L.from = null; app.querySelector('#go').disabled = false; drawBoard(ex); animateMove(app.querySelector('#board'), L.moved); return; }
   }
   L.from = p && p.color === g.turn() ? sq : null;
   app.querySelector('#go').disabled = true;
@@ -1706,6 +1753,82 @@ function pickMove(g, lv){
 }
 
 
+
+const BTHEMES = {
+  madeira:['Madeira', '#EBD9B4','#B38A5E','#F3CF4A','#E6C25A'],
+  verde:['Verde', '#EEEED2','#769656','#F6F669','#BACA44'],
+  cinza:['Cinza', '#E8E6E1','#9C9A94','#F3CF4A','#E6C25A'],
+  rosa:['Rosa', '#F7E3E3','#D79BA4','#F6D36A','#EFC76B']
+};
+function applyBT(){
+  const t = BTHEMES[S.boardTheme] || BTHEMES.madeira, r = document.documentElement.style;
+  r.setProperty('--sq-light', t[1]); r.setProperty('--sq-dark', t[2]); r.setProperty('--sq-sel', t[3]); r.setProperty('--sq-move', t[4]);
+}
+applyBT();
+// ---------- sons dos lances (gerados no aparelho, sem arquivos) ----------
+function tone(f0, f1, dur, vol, type, delay){
+  actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+  const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + (delay || 0);
+  o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+function thud(dur, vol){
+  actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+  const n = Math.floor(actx.sampleRate * dur), buf = actx.createBuffer(1, n, actx.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random()*2 - 1) * Math.pow(1 - i/n, 3);
+  const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+  src.buffer = buf; f.type = 'bandpass'; f.frequency.value = 900; g.gain.value = vol;
+  src.connect(f).connect(g).connect(actx.destination); src.start();
+}
+function moveSound(mv, g){
+  if (!S.sound || !mv) return;
+  try {
+    if (g && g.in_checkmate()){ [523, 659, 784, 1047].forEach((f,i) => tone(f, f, .32, .16, 'sine', i*.1)); return; }
+    if (g && g.in_check()){ tone(880, 880, .12, .14, 'sine'); tone(1175, 1175, .16, .14, 'sine', .09); }
+    if (mv.captured){ tone(190, 90, .13, .3, 'triangle'); thud(.12, .5); }
+    else tone(300, 160, .08, .26, 'triangle');
+  } catch(e) {}
+}
+function attachDrag(el, tap, own){
+  if (el._dd){ el._dd.tap = tap; el._dd.own = own; return; }
+  const dd = el._dd = {tap, own, st:null, swallow:false};
+  el.addEventListener('pointerdown', e => {
+    const b = e.target.closest && e.target.closest('[data-sq]'); if (!b || (e.button || 0) > 0) return;
+    const sq = b.dataset.sq; if (!b.querySelector('.pc') || !dd.own(sq)) return;
+    dd.st = {sq, x:e.clientX, y:e.clientY, id:e.pointerId, drag:false, touch:e.pointerType !== 'mouse'};
+  });
+  el.addEventListener('pointermove', e => {
+    const st = dd.st; if (!st || e.pointerId !== st.id) return;
+    if (!st.drag){
+      if (Math.hypot(e.clientX - st.x, e.clientY - st.y) < 8) return;
+      st.drag = true;
+      try { el.setPointerCapture(e.pointerId); } catch(_) {}
+      const sel = el.querySelector('.sq.sel');
+      if (!sel || sel.dataset.sq !== st.sq) dd.tap(st.sq);
+      const o = el.querySelector(`[data-sq="${st.sq}"] .pc`);
+      if (!o){ dd.st = null; return; }
+      const r = o.getBoundingClientRect(); st.w = r.width * 1.2;
+      const gh = document.createElement('span'); gh.className = 'pc-drag'; gh.innerHTML = o.innerHTML;
+      gh.style.cssText = `position:fixed;left:0;top:0;width:${st.w}px;height:${st.w}px;pointer-events:none;z-index:60`;
+      document.body.appendChild(gh); o.style.opacity = '.3'; st.gh = gh; st.o = o;
+    }
+    st.gh.style.transform = `translate(${e.clientX - st.w/2}px, ${e.clientY - st.w/2 - (st.touch ? st.w*.45 : 0)}px)`;
+  });
+  const end = e => {
+    const st = dd.st; if (!st || e.pointerId !== st.id) return; dd.st = null;
+    if (!st.drag) return;
+    st.gh.remove(); if (st.o) st.o.style.opacity = '';
+    dd.swallow = true; setTimeout(() => { dd.swallow = false; }, 0);
+    if (e.type === 'pointercancel') return;
+    const y = e.clientY - (st.touch ? st.w*.45 : 0);
+    const t = document.elementFromPoint(e.clientX, y), b = t && t.closest && t.closest('[data-sq]');
+    if (b && el.contains(b) && b.dataset.sq !== st.sq) dd.tap(b.dataset.sq);
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('click', e => { if (dd.swallow){ e.stopPropagation(); e.preventDefault(); } }, true);
+}
+
 // ---------- animação dos lances ----------
 // A peça desliza da casa de origem até a de destino (uma cópia flutuante por cima do tabuleiro).
 const MOVE_MS = 280;
@@ -1730,7 +1853,7 @@ function fadeCaptured(board, sq, color){
   const el = board.querySelector(`[data-sq="${sq}"]`); if (!el) return;
   const br = board.getBoundingClientRect(), r = el.getBoundingClientRect();
   const gh = document.createElement('span');
-  gh.className = `pc ${color} pc-fly pc-gone`; gh.textContent = PIECE.p + '\uFE0E';
+  gh.className = `pc ${color} pc-fly pc-gone`; gh.innerHTML = pieceSvg('p', color);
   Object.assign(gh.style, {left:(r.left - br.left) + 'px', top:(r.top - br.top) + 'px', width:r.width + 'px', height:r.height + 'px', fontSize:getComputedStyle(el).fontSize});
   board.appendChild(gh);
   setTimeout(() => gh.remove(), 1300);
@@ -1793,7 +1916,7 @@ function renderGame(){
     <div class="lhead"><button class="x" id="quit" aria-label="Sair da partida">${I.x}</button><div class="gtitle">Você × Volipe · ${LEVELS[G.level].name}</div></div>
     <div class="stage">
       <div class="prompt"><span id="gm"></span><div class="bubble q" id="gsay" aria-live="polite"></div></div>
-      <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="Tabuleiro"></div><span class="turn" id="turn"></span></div>
+      <div class="board-wrap"><div class="cap" id="captop" aria-label="Peças que você perdeu"></div><div class="board" id="board" role="grid" aria-label="Tabuleiro"></div><div class="cap" id="capbot" aria-label="Peças que você capturou"></div><span class="turn" id="turn"></span></div>
       <div class="row gbtns" id="gbtns"></div>
     </div></div>`;
   app.querySelector('#quit').onclick = () => { saveGame(); G = null; home(); };
@@ -1811,10 +1934,12 @@ function drawGame(){
     const t = targets.find(m => m.to === sq);
     const cls = ['sq', (r+f)%2 ? 'd' : '', G.from===sq ? 'sel' : '', G.last && (G.last.from===sq || G.last.to===sq) ? 'last' : '',
       G.hint && (G.hint.from===sq || G.hint.to===sq) ? 'hint' : '', checkSq===sq ? 'chk' : '', t ? 'tgt' : '', t && t.captured ? 'cap' : ''].join(' ');
-    html += `<button class="${cls}" data-sq="${sq}" aria-label="${sq}${p ? ' ' + (p.color==='w'?'branca':'preta') : ''}">${p ? `<span class="pc ${p.color}">${PIECE[p.type]}︎</span>` : ''}${rr===7 ? `<span class="cf">${files[f]}</span>` : ''}${ff===0 ? `<span class="cr">${8-r}</span>` : ''}</button>`;
+    html += `<button class="${cls}" data-sq="${sq}" aria-label="${sq}${p ? ' ' + (p.color==='w'?'branca':'preta') : ''}">${p ? `<span class="pc ${p.color}">${pieceSvg(p.type, p.color)}</span>` : ''}${rr===7 ? `<span class="cf">${files[f]}</span>` : ''}${ff===0 ? `<span class="cr">${8-r}</span>` : ''}</button>`;
   }
   el.innerHTML = html;
   el.querySelectorAll('[data-sq]').forEach(b => b.onclick = () => gameTap(b.dataset.sq));
+  attachDrag(el, gameTap, sq => { const p = G && !G.over && !G.thinking && G.g.turn() === G.me && G.g.get(sq); return !!p && p.color === G.me; });
+  app.querySelector('#captop').innerHTML = capRow(g, 'me', G.me); app.querySelector('#capbot').innerHTML = capRow(g, 'op', G.me);
   if (G.animate){ animateMove(el, G.animate); G.animate = null; }
   const mood = G.thinking ? 'think' : G.mood;
   if (G.shownMood !== mood){ app.querySelector('#gm').innerHTML = mascot(mood, 64); G.shownMood = mood; }
@@ -1848,7 +1973,7 @@ function gameTap(sq){
       G.last = mv; G.from = null; G.hint = null;
       G.mood = mv.captured ? 'sad' : 'idle';
       G.say = mv.flags.includes('e') ? 'Captura en passant! Meu peão andou duas casas e passou ao lado do seu, então você pôde capturá-lo.' : mv.captured ? `Ai! Você pegou ${MINE[mv.captured]}.` : `Você jogou ${sanPt(mv.san)}.`;
-      chime(true);
+      moveSound(mv, g);
       if (!checkEnd()){ saveGame(); botMove(); }
       return;
     }
@@ -1872,7 +1997,7 @@ function botMove(){
 function playBot(m){
   {
     const mv = G.g.move({from:m.from, to:m.to, promotion:m.promotion || 'q'});
-    G.animate = mv;
+    G.animate = mv; moveSound(mv, G.g);
     G.thinking = false; G.last = mv;
     G.mood = mv.captured ? 'happy' : 'idle';
     G.say = mv.flags.includes('e') ? `Captura en passant (${sanPt(mv.san)})! Seu peão andou duas casas e passou ao lado do meu. Nesse caso eu posso capturá-lo indo para a casa que ele pulou (${mv.to}), mas só no lance seguinte.` : G.g.in_check() && !G.g.in_checkmate() ? `Xeque! Joguei ${sanPt(mv.san)}.` : mv.captured ? `Peguei ${YOURS[mv.captured]} com ${sanPt(mv.san)}.` : `Joguei ${sanPt(mv.san)}. Sua vez!`;
@@ -2325,7 +2450,6 @@ function check(){
     feedback(true, title, detail);
     if (ex.tg) speak(ex.tg);
   } else {
-    L.hearts--;
     if (key) ms[key] = (ms[key]||0) + 2;
     L.queue.push(Object.assign({}, ex)); L.wrongOnce.add(L.queue.length-1);
     feedback(false, ex.kind === 'board' ? 'Não foi esse.' : ex.kind === 'order' ? 'A ordem certa é:' : ex.expl ? `Resposta correta: ${shownTxt}` : 'Resposta correta:', ex.kind === 'order' ? shownTxt + '\n\n' + ex.expl : ex.expl || shownTxt);
@@ -2345,15 +2469,13 @@ function feedback(ok, title, detail){
   else app.querySelector('#fbm').innerHTML = mascot(ok ? 'happy' : 'sad', 56);
   const go = app.querySelector('#go'); go.disabled = false; go.textContent = 'Continuar'; go.focus();
   const sk = app.querySelector('#skip'); if (sk) sk.hidden = true;
-  app.querySelector('.hearts').innerHTML = I.heart + L.hearts;
   app.querySelector('.lhead .bar i').style.width = Math.round(L.correct/L.total*100) + '%';
   chime(ok);
 }
 
 function next(){
-  if (L.hearts <= 0) return finish(false);
   L.pos++;
-  if (L.pos >= L.queue.length) return finish(true);
+  if (L.pos >= L.queue.length) return finish();
   renderEx();
 }
 
@@ -2366,32 +2488,27 @@ function awardXp(n){
   if (S.lastDay !== today()){ S.streak = S.lastDay === yesterday() ? S.streak + 1 : 1; S.lastDay = today(); }
   save();
 }
-function finish(won){
+function finish(){
   const secs = Math.round((Date.now() - L.startedAt)/1000);
   const acc = Math.round(L.firstTry / L.total * 100);
   const c = L.c, unit = L.unit, cs = CS(c.id);
-  let gained = 0;
-  if (won){
-    gained = 10 + (acc === 100 ? 5 : 0);
-    awardXp(gained);
-    if (unit.id !== 'review') cs.units[unit.id] = (cs.units[unit.id]||0) + 1;
-    save();
-  }
+  const gained = 10 + (acc === 100 ? 5 : 0);
+  awardXp(gained);
+  if (unit.id !== 'review') cs.units[unit.id] = (cs.units[unit.id]||0) + 1;
+  save();
   app.innerHTML = `<div class="end">
-    ${mascot(won ? 'cheer' : 'sad', 150)}
-    <h1>${won ? (acc===100 ? 'Lição perfeita!' : 'Lição concluída!') : 'Acabaram as vidas'}</h1>
-    <p style="margin:0;color:var(--muted)">${won ? `${esc(c.name)} · ${esc(unit.title)} · ${liveStreak()} ${liveStreak()===1?'dia':'dias'} seguidos` : 'Os erros foram guardados para a revisão. Tente de novo.'}</p>
+    ${mascot('cheer', 150)}
+    <h1>${acc===100 ? 'Lição perfeita!' : 'Lição concluída!'}</h1>
+    <p style="margin:0;color:var(--muted)">${esc(c.name)} · ${esc(unit.title)} · ${liveStreak()} ${liveStreak()===1?'dia':'dias'} seguidos</p>
     <div class="cards">
       <div class="card gold"><b>${gained}</b><span>XP</span></div>
       <div class="card ok"><b>${acc}%</b><span>Acertos</span></div>
       <div class="card blue"><b>${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}</b><span>Tempo</span></div>
     </div>
-    <button class="btn" id="cont">${won ? 'Continuar' : 'Tentar de novo'}</button>
-    ${won ? '' : '<button class="btn ghost" id="back">Voltar à trilha</button>'}
+    <button class="btn" id="cont">Continuar</button>
   </div>`;
-  if (won) chime(true);
-  app.querySelector('#cont').onclick = () => won ? home() : start(unit, unit.id==='review' ? buildReview(c) : buildLesson(c, unitById(c, unit.id)));
-  const b = app.querySelector('#back'); if (b) b.onclick = home;
+  chime(true);
+  app.querySelector('#cont').onclick = home;
 }
 
 const NAVI = {
@@ -2678,6 +2795,7 @@ const PUZZLES_T = [
 const PZ = [...PUZZLES, ...PUZZLES_T].map((p, i) => ({id:i, fen:p[0], sol:[].concat(p[1]), n:p[2], r:p[3], tip:p[4]}));
 const PZ_MODES = ['', 'Mate em 1', 'Mate em 2'];
 let Z = null;
+const MARK = {ok:'<i class="mk ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.500"/></svg></i>', bad:'<i class="mk bad"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M6.500 6.500l11 11M17.500 6.500l-11 11"/></svg></i>'};
 const pzStats = () => S.pz || (S.pz = {rating:600, best:600, solved:0, failed:0, streak:0, bestStreak:0, rush:0, seen:[]});
 const uci = m => m.from + m.to + (m.promotion || '');
 const pzMateMove = g => g.moves({verbose:true}).find(m => { g.move(m); const ok = g.in_checkmate(); g.undo(); return ok; });
@@ -2729,7 +2847,7 @@ function pzNext(){
   clearTimeout(Z.nt);
   const p = pzPick(); if (Z.mode === 'rush') Z.usedRush.push(p.id);
   const g = new Chess(p.fen);
-  Object.assign(Z, {p, g, me:g.turn(), from:null, last:null, hint:null, state:'play', step:0, hinted:false, mood:'think', animate:null, bkey:null, shownMood:null,
+  Object.assign(Z, {p, g, me:g.turn(), from:null, last:null, hint:null, state:'play', step:0, hinted:false, failed:false, mark:null, mood:'think', animate:null, bkey:null, shownMood:null,
     say: p.tip || (p.n === 0 ? 'Qual é o melhor lance?' : `Mate em ${p.n}. Encontre o lance.`)});
   pzDraw();
 }
@@ -2750,10 +2868,11 @@ function pzDraw(){
   for (let rr = 0; rr < 8; rr++) for (let ff = 0; ff < 8; ff++){
     const r = flip ? 7-rr : rr, f = flip ? 7-ff : ff, sq = files[f] + (8-r), p = board[r][f], t = targets.find(m => m.to === sq);
     const cls = ['sq', (r+f)%2 ? 'd' : '', Z.from===sq ? 'sel' : '', Z.last && (Z.last.from===sq || Z.last.to===sq) ? 'last' : '', Z.hint===sq ? 'hint' : '', checkSq===sq ? 'chk' : '', t ? 'tgt' : '', t && t.captured ? 'cap' : ''].join(' ');
-    html += `<button class="${cls}" data-sq="${sq}" aria-label="${sq}${p ? ' ' + (p.color==='w'?'branca':'preta') : ''}">${p ? `<span class="pc ${p.color}">${PIECE[p.type]}︎</span>` : ''}${rr===7 ? `<span class="cf">${files[f]}</span>` : ''}${ff===0 ? `<span class="cr">${8-r}</span>` : ''}</button>`;
+    html += `<button class="${cls}" data-sq="${sq}" aria-label="${sq}${p ? ' ' + (p.color==='w'?'branca':'preta') : ''}">${p ? `<span class="pc ${p.color}">${pieceSvg(p.type, p.color)}</span>` : ''}${rr===7 ? `<span class="cf">${files[f]}</span>` : ''}${ff===0 ? `<span class="cr">${8-r}</span>` : ''}${Z.mark && Z.mark.sq === sq ? MARK[Z.mark.ok ? 'ok' : 'bad'] : ''}</button>`;
   }
   el.innerHTML = html;
   el.querySelectorAll('[data-sq]').forEach(b => b.onclick = () => pzTap(b.dataset.sq));
+  attachDrag(el, pzTap, sq => { const p = Z && Z.state === 'play' && Z.g.get(sq); return !!p && p.color === Z.me; });
   if (Z.animate){ animateMove(el, Z.animate); Z.animate = null; }
   app.querySelector('#pzkind').textContent = Z.mode === 'rush' ? `Acertos: ${Z.score}  ·  Erros: ${Z.strikes}/3` : (PZ_MODES[Z.p.n] || 'Lance tático');
   app.querySelector('#pzinfo').textContent = Z.mode === 'rush' ? '' : `Problema ${Z.p.r}`;
@@ -2781,7 +2900,7 @@ function pzHint(){
 }
 function pzTap(sq){
   if (!Z || Z.state !== 'play') return;
-  const g = Z.g;
+  const g = Z.g; Z.mark = null;
   if (Z.from){
     const ok = g.moves({square:Z.from, verbose:true}).find(m => m.to === sq);
     if (ok){ pzMove(g.move({from:Z.from, to:sq, promotion:'q'})); return; }
@@ -2791,19 +2910,20 @@ function pzTap(sq){
   pzDraw();
 }
 function pzMove(mv){
-  const p = Z.p, g = Z.g; Z.from = null; Z.hint = null; Z.last = mv; Z.animate = mv; chime(true);
+  const p = Z.p, g = Z.g; Z.from = null; Z.hint = null; Z.last = mv; Z.animate = mv; moveSound(mv, g);
   let right;
   if (p.n === 1) right = g.in_checkmate();
   else if (p.n === 2) right = Z.step === 0 ? p.sol.includes(uci(mv)) : g.in_checkmate();
   else right = p.sol.includes(uci(mv));
-  if (!right){ g.undo(); Z.animate = null; Z.last = null; return pzFail(p.n === 0 ? 'Esse não é o melhor lance.' : 'Esse lance não leva ao mate.'); }
+  if (!right) return pzWrong(mv, p.n === 0 ? 'Esse não é o melhor lance.' : 'Esse lance não leva ao mate.');
+  Z.mark = {sq:mv.to, ok:true};
   if (p.n !== 2 || Z.step === 1) return pzSolved();
   Z.step = 1; Z.state = 'bot'; Z.mood = 'happy'; Z.say = 'Boa! Agora o adversário responde.'; pzDraw();
   const z = Z;
   setTimeout(() => {
     if (Z !== z) return;
     const rs = g.moves({verbose:true}), mv2 = g.move(rs[Math.floor(Math.random() * rs.length)]);
-    z.last = mv2; z.animate = mv2; z.state = 'play'; z.mood = 'think'; z.say = 'Agora dê o xeque-mate.'; pzDraw();
+    z.mark = null; z.last = mv2; z.animate = mv2; moveSound(mv2, g); z.state = 'play'; z.mood = 'think'; z.say = 'Agora dê o xeque-mate.'; pzDraw();
   }, MOVE_MS + 450);
 }
 function pzElo(won, pr){
@@ -2811,18 +2931,27 @@ function pzElo(won, pr){
   return Math.round(K * ((won ? 1 : 0) - exp));
 }
 function pzSolved(){
-  const s = pzStats(), z = Z, clean = !Z.hinted;
+  const s = pzStats(), z = Z, clean = !Z.hinted && !Z.failed;
   Z.state = 'right'; Z.mood = 'cheer';
   if (Z.mode === 'rush'){
     Z.score++; Z.say = 'Certo!'; pzDraw();
     Z.nt = setTimeout(() => { if (Z === z && !z.over) pzNext(); }, 650); return;
   }
-  s.seen.push(Z.p.id); s.seen = s.seen.slice(-60); s.solved++;
+  s.seen.push(Z.p.id); s.seen = s.seen.slice(-60); if (!Z.failed) s.solved++;
   let d = 0;
   if (clean){ d = Math.max(1, pzElo(true, Z.p.r)); s.rating += d; s.best = Math.max(s.best, s.rating); s.streak++; s.bestStreak = Math.max(s.bestStreak, s.streak); awardXp(2); }
-  else s.streak = 0;
+  else if (!Z.failed) s.streak = 0;
   save();
-  Z.say = clean ? `Isso! +${d} de rating e +2 XP.` : 'Resolvido com dica, então o rating não muda.';
+  Z.say = clean ? `Isso! +${d} de rating e +2 XP.` : Z.failed ? 'Resolvido! O rating já tinha caído no erro.' : 'Resolvido com dica, então o rating não muda.';
+  pzDraw(); pzRating(d);
+}
+function pzWrong(mv, msg){
+  const s = pzStats(), g = Z.g; g.undo(); Z.animate = null; Z.last = null; Z.mark = {sq:mv.to, ok:false}; Z.mood = 'sad';
+  if (Z.mode === 'rush') return pzFail(msg);
+  chime(false);
+  let d = 0;
+  if (!Z.failed){ Z.failed = true; s.failed++; s.streak = 0; s.seen.push(Z.p.id); s.seen = s.seen.slice(-60); d = pzElo(false, Z.p.r); s.rating = Math.max(100, s.rating + d); save(); }
+  Z.say = `${msg}${d ? ` ${d} de rating.` : ''} Tente de novo ou veja a solução.`;
   pzDraw(); pzRating(d);
 }
 function pzFail(msg){
@@ -2836,9 +2965,10 @@ function pzFail(msg){
     Z.strikes++; Z.say = msg + ' ' + say; pzDraw();
     Z.nt = setTimeout(() => { if (Z !== z || z.over) return; if (z.strikes >= 3) pzRushEnd('Três erros.'); else pzNext(); }, 1500); return;
   }
-  s.seen.push(Z.p.id); s.seen = s.seen.slice(-60); s.failed++; s.streak = 0;
-  const d = pzElo(false, Z.p.r); s.rating = Math.max(100, s.rating + d); save();
-  Z.say = `${msg} ${say} ${d} de rating.`;
+  s.seen.push(Z.p.id); s.seen = s.seen.slice(-60);
+  let d = 0;
+  if (!Z.failed){ Z.failed = true; s.failed++; s.streak = 0; d = pzElo(false, Z.p.r); s.rating = Math.max(100, s.rating + d); save(); }
+  Z.say = `${msg} ${say}${d ? ` ${d} de rating.` : ''}`;
   pzDraw(); pzRating(d);
 }
 function pzRating(d){

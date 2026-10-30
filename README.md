@@ -12,7 +12,7 @@ No Chrome do Android, toque em ⋮ e depois em **Instalar app**.
 - **Xadrez:** exercícios, partidas contra o Volipe em três níveis e quebra-cabeças com rating (mate em 1 e em 2, mais o modo Relâmpago de 3 minutos).
 - **Flashcards** com repetição espaçada.
 - **Inglês B1 e B2:** 9 unidades novas (expressões do dia a dia, should have, present perfect, direções, phrasal verbs, narrativa, condições, opiniões e trabalho avançado), com selo de nível. As unidades A1 e A2 continuam no fim da trilha para revisão.
-- XP, sequência de dias, vidas e revisão de erros.
+- XP, sequência de dias e revisão de erros. Sem vidas: errar só significa que a questão volta no fim da lição.
 - Funciona offline depois de aberto uma vez.
 
 A conversa com o Volipe e o "Explicar meu erro" usam o Claude da conta de quem estuda, então funcionam na versão aberta pelo claude.ai.
