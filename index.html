@@ -128,6 +128,17 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .unit:hover{border-color:var(--ac)}
 .node{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:22px;background:var(--ac);color:var(--ac-ink);box-shadow:0 5px 0 var(--ac-deep)}
 .unit.done .node{background:var(--gold);color:#3A2A00;box-shadow:0 5px 0 #B07B00}
+.seg.sub{margin-bottom:12px}
+.wcard{display:grid;gap:8px;padding:16px;border-radius:22px;background:var(--ac-soft);border:1px solid var(--line);margin-bottom:12px}
+.wcard .ww{font:800 28px var(--display)}
+.wcard .wm{font-size:17px}.wcard .we{color:var(--muted);font-style:italic}
+.wlist{display:grid;gap:8px;margin:12px 0}
+.wrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.wrow b{display:block}.wrow small{color:var(--muted)}
+.wrow button{border:0;background:var(--sunk);border-radius:10px;min-width:36px;height:36px;font-weight:800}
+.fld{display:grid;gap:4px;margin-bottom:8px;font-weight:700}
+.fld input,.fld textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--fg)}
+.fld textarea{min-height:110px;resize:vertical}
 .unit.custom .node{background:var(--sunk);color:var(--fg);box-shadow:0 5px 0 var(--line)}
 .unit h3{font-size:18px}
 .lvtag{display:inline-block;vertical-align:middle;margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--ac-soft);font:700 11px/1.4 var(--body);letter-spacing:.04em}
@@ -987,6 +998,74 @@ COURSES.find(c => c.id === 'mat').units.forEach(u => (HARD[u.id] || []).forEach(
 /*ENDDATA*/
 
 const LESSONS_PER_UNIT = 5;
+const WORDBANK = [
+['thicken','engrossar, ficar mais denso','The fog began to thicken.'],
+['reluctant','relutante, sem vontade','She was reluctant to say yes.'],
+['thorough','minucioso, completo','He did a thorough check.'],
+['overwhelm','sobrecarregar, esmagar','The news overwhelmed me.'],
+['cope with','lidar com','I cope with stress by running.'],
+['reliable','confiável','This car is very reliable.'],
+['harsh','duro, severo','The winter was harsh.'],
+['bargain','pechincha','It was a real bargain.'],
+['shrink','encolher','Cotton can shrink in hot water.'],
+['wander','vagar, perambular','We wandered through the old town.'],
+['grab','agarrar, pegar rápido','Grab your coat, we are late.'],
+['hesitate','hesitar','Do not hesitate to call me.'],
+['striking','impressionante, marcante','A striking difference.'],
+['blur','borrar, borrão','The photo is a blur.'],
+['stubborn','teimoso','My dog is very stubborn.'],
+['fade','desbotar, esmaecer','The colors faded over time.'],
+['crave','desejar muito, ter vontade de','I crave something sweet.'],
+['gloomy','sombrio, melancólico','A gloomy Monday morning.'],
+['sharp','afiado, nítido','Be careful, the knife is sharp.'],
+['cautious','cauteloso','Be cautious on wet roads.'],
+['tend to','costumar, ter tendência a','I tend to wake up early.'],
+['figure out','descobrir, entender','I finally figured it out.'],
+['deal with','lidar com, resolver','I will deal with it tomorrow.'],
+['run out of','ficar sem, acabar','We ran out of milk.'],
+['look forward to','esperar ansiosamente','I look forward to the weekend.'],
+['give up','desistir','Never give up.'],
+['put off','adiar','Stop putting off your homework.'],
+['come across','encontrar por acaso','I came across an old photo.'],
+['turn out','acabar sendo, revelar-se','It turned out to be easy.'],
+['set up','montar, configurar','I set up the new router.'],
+['get along','dar-se bem','We get along really well.'],
+['carry on','continuar','Carry on, I am listening.'],
+['take advantage of','aproveitar','Take advantage of the sale.'],
+['rely on','depender de, contar com','You can rely on me.'],
+['apply for','candidatar-se a','She applied for a new job.'],
+['miss out on','perder (uma oportunidade)','Do not miss out on this.'],
+['by the way','a propósito','By the way, I called him.'],
+['sooner or later','mais cedo ou mais tarde','Sooner or later, you will know.'],
+['on purpose','de propósito','He did it on purpose.'],
+['in charge of','responsável por','Who is in charge of this?'],
+['at least','pelo menos','At least try it once.'],
+['no matter what','aconteça o que acontecer','No matter what, I will be there.'],
+['gather','reunir, juntar','Gather everyone in the kitchen.'],
+['approach','abordagem, aproximar-se','A new approach to the problem.'],
+['achieve','alcançar, conquistar','She achieved her goal.'],
+['mention','mencionar','I forgot to mention it.'],
+['improve','melhorar','I want to improve my English.'],
+['avoid','evitar','Avoid the traffic if you can.'],
+['suggest','sugerir','I suggest we leave now.'],
+['afford','ter condições de pagar','I cannot afford a new phone.'],
+['recall','lembrar, recordar','I cannot recall his name.'],
+['pursue','perseguir, buscar','She pursued a career in music.'],
+['seek','buscar, procurar','They seek a better life.'],
+['dwell on','ficar remoendo','Do not dwell on the past.'],
+['grief','luto, dor profunda','He was lost in grief.'],
+['shallow','raso, superficial','The lake is shallow here.'],
+['bury','enterrar','The dog buried its bone.'],
+['dig','cavar','We dug a hole in the garden.'],
+['trapped','preso, encurralado','I felt trapped in the elevator.'],
+['haunt','assombrar','Memories haunt him.'],
+['numb','dormente, entorpecido','My fingers went numb.'],
+['rage','raiva intensa','He shouted in rage.'],
+['whisper','sussurrar','She whispered a secret.'],
+['embrace','abraçar, aceitar','Embrace the change.'],
+['scar','cicatriz','He has a scar on his arm.'],
+['crawl','rastejar, engatinhar','The baby started to crawl.']
+];
 const SAMPLES = {
 en:`# Uma linha por item:  inglês = português
 # Palavras soltas viram exercícios de vocabulário,
@@ -1039,6 +1118,8 @@ function CS(cid){
   if (!S.courses[cid]) S.courses[cid] = {units:{}, mistakes:{}};
   const c = S.courses[cid];
   if (typeof c.custom !== 'string') c.custom = SAMPLES[cid] || '';
+  if (!Array.isArray(c.notebook)) c.notebook = [];
+  if (!Array.isArray(c.songs)) c.songs = [];
   return c;
 }
 
@@ -1055,7 +1136,23 @@ function customUnit(c){
   });
   return {id:'custom', title:'Minhas aulas', desc:'O conteúdo das nossas aulas', words, sents, custom:true};
 }
-const unitsOf = c => c.items ? c.units : [...c.units, customUnit(c)];
+function notebookUnit(c){
+  const words = CS(c.id).notebook.filter(n => n.w && n.pt).map(n => [n.w, n.pt, '']);
+  const sents = CS(c.id).notebook.filter(n => n.w && n.pt && n.ex && n.ex.split(/\s+/).length >= 3 && !c.cjk).map(n => [n.ex, n.exPt || n.pt, [], '']);
+  return {id:'caderno', title:'Meu caderno', desc:'As palavras que você guardou', words, sents, notebook:true};
+}
+const songLines = (s) => {
+  const en = (s.lyrics||'').split('\n').map(x => x.trim()), pt = (s.tr||'').split('\n').map(x => x.trim());
+  const out = [];
+  en.forEach((l, i) => { if (l && pt[i] && l.split(/\s+/).length >= 3 && l.split(/\s+/).length <= 14) out.push([l, pt[i], [], '']); });
+  return out;
+};
+const songWords = s => (s.vocab||'').split('\n').map(l => l.split('=').map(x => x.trim())).filter(p => p.length >= 2 && p[0] && p[1]).map(p => [p[0], p[1], '']);
+function songUnits(c){
+  return CS(c.id).songs.map(s => ({id:'song-' + s.id, title:s.title, desc:(s.artist ? s.artist + ' · ' : '') + 'Aula de música', words:songWords(s), sents:songLines(s), song:true}))
+    .filter(u => u.words.length + u.sents.length >= 3);
+}
+const unitsOf = c => c.items ? c.units : [...c.units, ...songUnits(c), ...(CS(c.id).notebook.length >= 3 ? [notebookUnit(c)] : []), customUnit(c)];
 const unitById = (c, id) => unitsOf(c).find(u => u.id === id);
 
 // ---------- texto ----------
@@ -1351,6 +1448,80 @@ const app = document.getElementById('app');
 let tab = 'path';
 try { tab = localStorage.getItem(KEY+'-tab') || 'path'; } catch(e) {}
 let L = null;
+let ctab = 'aulas', WD = null;
+const segHtml = c => `<div class="seg sub" role="group" aria-label="Seção">
+  <button data-ctab="aulas" aria-pressed="${ctab==='aulas'}">Aulas</button>
+  <button data-ctab="caderno" aria-pressed="${ctab==='caderno'}">Caderno</button>
+  ${c.cjk ? '' : `<button data-ctab="musicas" aria-pressed="${ctab==='musicas'}">Músicas</button>`}</div>`;
+const bindSeg = body => body.querySelectorAll('[data-ctab]').forEach(b => b.onclick = () => { ctab = b.dataset.ctab; home(); });
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+
+function pickWord(c){
+  const cs = CS(c.id), have = new Set(cs.notebook.map(n => n.w.toLowerCase())), skip = new Set(S.wskip || []);
+  const pool = WORDBANK.filter(w => !have.has(w[0].toLowerCase()) && !skip.has(w[0]));
+  if (!pool.length) return null;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function renderNotebook(el, c){
+  const cs = CS(c.id), nb = cs.notebook, en = c.id === 'en';
+  if (en && !WD) WD = pickWord(c);
+  const card = !en ? '' : WD ? `<div class="wcard"><span class="eyebrow">Palavra nova</span>
+      <div class="ww">${esc(WD[0])}</div><div class="wm">${esc(WD[1])}</div><div class="we">${esc(WD[2])}</div>
+      <div class="row"><button class="btn" id="wsave">Guardar no caderno</button><button class="btn ghost" id="wknow">Já sei</button><button class="btn ghost" id="wsay" aria-label="Ouvir">Ouvir</button></div></div>`
+    : '<div class="wcard"><div class="wm">Você já passou por todas as palavras sugeridas. Adicione as suas abaixo.</div></div>';
+  el.innerHTML = `${card}<div class="panel">
+    <h2>Caderno de palavras</h2>
+    <p>Anote aqui o que você lê ou ouve. As palavras do caderno viram flashcards e uma aula própria (com 3 ou mais palavras).</p>
+    <label class="fld">Palavra ou expressão<input id="nw" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    <label class="fld">Significado<input id="np" autocomplete="off"></label>
+    <label class="fld">Frase de exemplo (opcional)<input id="ne" autocomplete="off" spellcheck="false"></label>
+    <div class="row"><button class="btn" id="nadd">Guardar</button><span class="toast" id="ntoast" aria-live="polite"></span></div>
+    <div class="wlist">${nb.length ? nb.map((n, i) => `<div class="wrow"><div><b>${esc(n.w)}</b><small>${esc(n.pt)}${n.ex ? ' · ' + esc(n.ex) : ''}</small></div><button data-say="${i}" aria-label="Ouvir ${esc(n.w)}">♪</button><button data-del="${i}" aria-label="Apagar ${esc(n.w)}">×</button></div>`).join('') : '<p class="note">O caderno está vazio.</p>'}</div>
+    <p class="note">${nb.length} ${nb.length === 1 ? 'palavra' : 'palavras'} no caderno.</p></div>`;
+  const add = (w, pt, ex) => { w = w.trim(); pt = pt.trim(); if (!w || !pt) return false; if (nb.some(n => n.w.toLowerCase() === w.toLowerCase())) return false; nb.unshift({id:newId(), w, pt, ex:(ex || '').trim()}); delete c._py; save(); return true; };
+  const sv = el.querySelector('#wsave');
+  if (sv){
+    sv.onclick = () => { add(WD[0], WD[1], WD[2]); WD = null; awardXp(1); renderNotebook(el, c); };
+    el.querySelector('#wknow').onclick = () => { S.wskip = (S.wskip || []).concat(WD[0]); save(); WD = null; renderNotebook(el, c); };
+    el.querySelector('#wsay').onclick = () => speak(WD[0]);
+  }
+  el.querySelector('#nadd').onclick = () => {
+    const ok = add(el.querySelector('#nw').value, el.querySelector('#np').value, el.querySelector('#ne').value);
+    if (ok) renderNotebook(el, c); else el.querySelector('#ntoast').textContent = 'Preencha palavra e significado (sem repetir).';
+  };
+  el.querySelectorAll('[data-say]').forEach(b => b.onclick = () => speak(nb[+b.dataset.say].w));
+  el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    if (b.dataset.sure){ nb.splice(+b.dataset.del, 1); save(); renderNotebook(el, c); return; }
+    b.dataset.sure = '1'; b.textContent = 'Apagar?'; b.style.minWidth = '72px'; setTimeout(() => { if (b.isConnected){ delete b.dataset.sure; b.textContent = '×'; b.style.minWidth = ''; } }, 3000);
+  });
+}
+function renderSongs(el, c){
+  const cs = CS(c.id), songs = cs.songs;
+  el.innerHTML = `<div class="panel">
+    <h2>Aula de música</h2>
+    <p>Cole a letra de uma música que você quer estudar e a tradução, uma linha para cada linha da letra. O app cria uma aula com as frases e o vocabulário. O texto fica só neste aparelho.</p>
+    <label class="fld">Música<input id="st" autocomplete="off"></label>
+    <label class="fld">Artista<input id="sa" autocomplete="off"></label>
+    <label class="fld">Letra (original)<textarea id="sl" spellcheck="false"></textarea></label>
+    <label class="fld">Tradução (mesmas linhas)<textarea id="sr" spellcheck="false"></textarea></label>
+    <label class="fld">Vocabulário (uma por linha: palavra = significado)<textarea id="sv" spellcheck="false"></textarea></label>
+    <div class="row"><button class="btn" id="sadd">Criar aula</button><span class="toast" id="stoast" aria-live="polite"></span></div>
+    <div class="wlist">${songs.length ? songs.map((s, i) => { const n = songLines(s).length, v = songWords(s).length; return `<div class="wrow"><div><b>${esc(s.title)}</b><small>${esc(s.artist || '')}${s.artist ? ' · ' : ''}${n} frases, ${v} palavras</small></div><button data-sopen="${i}" aria-label="Estudar">▶</button><button data-sdel="${i}" aria-label="Apagar">×</button></div>`; }).join('') : '<p class="note">Nenhuma música ainda.</p>'}</div>
+    <p class="note">As aulas das músicas aparecem também na Trilha. Linhas com menos de 3 palavras não viram exercício.</p></div>`;
+  el.querySelector('#sadd').onclick = () => {
+    const t = el.querySelector('#st').value.trim(), ly = el.querySelector('#sl').value, tr = el.querySelector('#sr').value, vo = el.querySelector('#sv').value;
+    const song = {id:newId(), title:t || 'Sem título', artist:el.querySelector('#sa').value.trim(), lyrics:ly, tr, vocab:vo};
+    if (songLines(song).length + songWords(song).length < 3){ el.querySelector('#stoast').textContent = 'Preciso de ao menos 3 itens: cole a letra com a tradução linha a linha ou liste palavras.'; return; }
+    songs.unshift(song);
+    songWords(song).forEach(w => { if (!cs.notebook.some(n => n.w.toLowerCase() === w[0].toLowerCase())) cs.notebook.push({id:newId(), w:w[0], pt:w[1], ex:''}); });
+    delete c._py; save(); renderSongs(el, c);
+  };
+  el.querySelectorAll('[data-sopen]').forEach(b => b.onclick = () => { const u = unitById(c, 'song-' + songs[+b.dataset.sopen].id); if (u) start(u, buildLesson(c, u)); });
+  el.querySelectorAll('[data-sdel]').forEach(b => b.onclick = () => {
+    if (b.dataset.sure){ songs.splice(+b.dataset.sdel, 1); save(); renderSongs(el, c); return; }
+    b.dataset.sure = '1'; b.textContent = 'Apagar?'; b.style.minWidth = '72px'; setTimeout(() => { if (b.isConnected){ delete b.dataset.sure; b.textContent = '×'; b.style.minWidth = ''; } }, 3000);
+  });
+}
 
 function home(){
   document.documentElement.dataset.course = S.course;
@@ -1388,12 +1559,12 @@ function home(){
       ${goalCard(g)}
       ${noChess ? '<p class="note" style="margin-top:12px">As regras do xadrez não carregaram. Verifique a conexão e abra a página de novo.</p>' : ''}
       ${nMist && !noChess ? `<button class="review" id="rev">Revisar erros (${nMist} ${nMist>1?'itens':'item'})</button>` : ''}
-      ${c.chess && !noChess ? pzCard() + playCard() : ''}${!c.chess ? fcCard(c) : ''}${c.tts && !c.items ? talkCard(c) : ''}
+      ${c.chess && !noChess ? pzCard() + playCard() : ''}${!c.chess ? fcCard(c) : ''}${c.id === 'en' ? `<button class="review" id="wnew" style="background:var(--ac-soft);color:var(--fg)">Palavra nova do dia · caderno com ${cs.notebook.length}</button>` : ''}${c.tts && !c.items ? talkCard(c) : ''}
       <div class="path">${unitsOf(c).map((u,ix) => {
         const done = (cs.units[u.id]||0), full = done >= LESSONS_PER_UNIT;
         const empty = u.custom && (u.words.length + u.sents.length) < 3;
         return `<button class="unit ${full?'done':''} ${u.custom?'custom':''}" data-u="${u.id}">
-          <div class="node">${u.custom ? '+' : ix+1}</div>
+          <div class="node">${u.custom ? '+' : u.song ? '♪' : u.notebook ? '✎' : ix+1}</div>
           <div><h3>${esc(u.title)}${u.lv ? `<span class="lvtag">${u.lv}</span>` : ''}</h3><p>${empty ? 'Adicione pelo menos 3 itens na aba Minhas aulas' : esc(u.desc)}</p>
             <div class="crowns">${Array.from({length:LESSONS_PER_UNIT},(_,i)=>`<span class="pip ${i<done?'on':''}"></span>`).join('')}<span>&nbsp;${Math.min(done,LESSONS_PER_UNIT)}/${LESSONS_PER_UNIT}</span></div>
           </div></button>`; }).join('')}
@@ -1408,6 +1579,7 @@ function home(){
     if (c.chess && !noChess){ bindPzCard(body); bindPlayCard(body); }
     if (c.tts && !c.items) bindTalkCard(body, c);
     if (!c.chess) bindFcCard(body, c);
+    const wn = body.querySelector('#wnew'); if (wn) wn.onclick = () => { tab = 'custom'; ctab = 'caderno'; WD = null; home(); window.scrollTo(0,0); };
     let gi = 0, mt = null;
     body.querySelector('#mascot').onclick = e => {
       const lines = GREET[c.id] || GREET.en, line = lines[gi++ % lines.length];
@@ -1419,9 +1591,11 @@ function home(){
       clearTimeout(mt); mt = setTimeout(() => { btn.innerHTML = mascot('idle', 92); }, 1600);
     };
   } else if (tab === 'custom'){
+    if (c.cjk && ctab === 'musicas') ctab = 'aulas';
+    if (ctab !== 'aulas'){ body.innerHTML = segHtml(c) + '<div id="subbody"></div>'; bindSeg(body); (ctab === 'caderno' ? renderNotebook : renderSongs)(body.querySelector('#subbody'), c); } else {
     const cu = customUnit(c);
     const fmt = c.cjk ? '<b>chinês = português = pinyin</b>. Separe as palavras do chinês com espaço, porque cada palavra vira um bloco. O pinyin é opcional' : `<b>${esc(c.name.toLowerCase())} = português</b>`;
-    body.innerHTML = `<div class="panel">
+    body.innerHTML = segHtml(c) + `<div class="panel">
       <h2>Minhas aulas de ${esc(c.name.toLowerCase())}</h2>
       <p>Cole aqui o vocabulário e as frases de cada aula, uma linha por item, no formato ${fmt}. Para aceitar mais de uma resposta, separe com barra vertical: <code>${c.cjk ? '我 很 累 | 我 累 了 = Estou cansado' : "I'm tired | I am tired = Estou cansado"}</code>.</p>
       <textarea id="customtxt" spellcheck="false" aria-label="Itens das aulas">${esc(cs.custom)}</textarea>
@@ -1434,6 +1608,8 @@ function home(){
       const fallback = () => { ta.select(); toast.textContent = 'Texto selecionado, use Ctrl+C'; };
       if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(() => toast.textContent = 'Copiado', fallback); else fallback();
     };
+    bindSeg(body);
+    }
   } else {
     const missing = COURSES.filter(k => k.tts && hasTTS && !canSpeak(k)).map(k => k.name.toLowerCase());
     body.innerHTML = `<div class="panel settings">

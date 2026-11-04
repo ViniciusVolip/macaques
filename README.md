@@ -27,3 +27,4 @@ A conversa com o Volipe e o "Explicar meu erro" usam o Claude da conta de quem e
 | `chess.js` | Regras do xadrez ([chess.js](https://github.com/jhlywa/chess.js), licença BSD em `chess.js.LICENSE`) |
 
 O progresso fica salvo só no navegador do aparelho. Para levar o progresso para outro aparelho, use Ajustes → "Copiar meu progresso".
+- Caderno de palavras (com sorteio de palavra nova no inglês, vira flashcards e aula) e Aula Música: você cola a letra e a tradução, o app cria a aula. Tudo fica só no aparelho.
